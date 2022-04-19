@@ -27,7 +27,7 @@ public class CardRestController {
      * @return list of cards
      */
     @GetMapping(value = "/cards")
-    public Mono<ResponseEntity<Flux<Card>>> findAll() {
+    public Mono<ResponseEntity<Flux<Card>>> getAll() {
         return Mono.just(
                         ResponseEntity.ok()
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -70,7 +70,7 @@ public class CardRestController {
     public Mono<ResponseEntity<Void>> delete(@PathVariable(name = "id") String id) {
         return cardService.delete(id)
                 .then(Mono.just(
-                        new ResponseEntity<>(HttpStatus.NO_CONTENT)
+                        new ResponseEntity<>(HttpStatus.OK)
                 ));
     }
 

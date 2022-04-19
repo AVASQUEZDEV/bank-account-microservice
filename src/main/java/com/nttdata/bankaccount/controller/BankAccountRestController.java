@@ -27,7 +27,7 @@ public class BankAccountRestController {
      * @return list of bank accounts
      */
     @GetMapping("/bank-accounts")
-    public Mono<ResponseEntity<Flux<BankAccount>>> findAll() {
+    public Mono<ResponseEntity<Flux<BankAccount>>> getAll() {
         return Mono.just(
                         ResponseEntity.ok()
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -70,7 +70,7 @@ public class BankAccountRestController {
     public Mono<ResponseEntity<Void>> delete(@PathVariable(name = "id") String id) {
         return bankAccountService.delete(id)
                 .then(Mono.just(
-                        new ResponseEntity<>(HttpStatus.NO_CONTENT)
+                        new ResponseEntity<>(HttpStatus.OK)
                 ));
     }
 
