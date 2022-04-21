@@ -4,6 +4,7 @@ import com.nttdata.bankaccount.model.Card;
 import com.nttdata.bankaccount.repository.ICardRepository;
 import com.nttdata.bankaccount.service.ICardService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -31,9 +32,9 @@ public class CardServiceImpl implements ICardService {
     }
 
     /**
-     * This method creates an card
+     * This method creates a card
      *
-     * @param cardRequest request for create new card
+     * @param cardRequest request to create new card
      * @return card created
      */
     @Override
@@ -42,10 +43,10 @@ public class CardServiceImpl implements ICardService {
     }
 
     /**
-     * This method updates an card
+     * This method updates a card
      *
      * @param id          card id to update
-     * @param cardRequest request for update card
+     * @param cardRequest request to update card
      * @return card updated
      */
     @Override
@@ -63,7 +64,7 @@ public class CardServiceImpl implements ICardService {
      * This method delete an card
      *
      * @param id card id to delete
-     * @return a boolean value
+     * @return void
      */
     @Override
     public Mono<Void> delete(String id) {

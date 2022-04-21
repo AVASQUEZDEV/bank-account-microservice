@@ -31,9 +31,9 @@ public class BankAccountChargeServiceImpl implements IBankAccountChargeService {
     }
 
     /**
-     * This method creates an bank account charges
+     * This method creates a bank account charges
      *
-     * @param bankAccChargeRequest request for create new bank account charges
+     * @param bankAccChargeRequest request to create new bank account charges
      * @return bank account charges created
      */
     @Override
@@ -42,10 +42,10 @@ public class BankAccountChargeServiceImpl implements IBankAccountChargeService {
     }
 
     /**
-     * This method updates an bank account charges
+     * This method updates a bank account charges
      *
      * @param id                   bank account charge id to update
-     * @param bankAccChargeRequest request for update bank account charge
+     * @param bankAccChargeRequest request to update bank account charge
      * @return bank account charge updated
      */
     @Override
@@ -61,10 +61,10 @@ public class BankAccountChargeServiceImpl implements IBankAccountChargeService {
     }
 
     /**
-     * This method delete an bank account charge
+     * This method delete a bank account charge
      *
      * @param id bank account charge id to delete
-     * @return a boolean value
+     * @return void
      */
     @Override
     public Mono<Void> delete(String id) {

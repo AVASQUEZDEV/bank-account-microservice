@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
+
 /**
  * This controller class defines the endpoints to bank accounts
  *
@@ -18,7 +20,7 @@ import reactor.core.publisher.Mono;
  */
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/bank-accounts")
 public class BankAccountRestController {
 
     private final IBankAccountService bankAccountService;
@@ -26,10 +28,11 @@ public class BankAccountRestController {
     /**
      * @return list of bank accounts
      */
-    @GetMapping("/bank-accounts")
+    @GetMapping
     public Mono<ResponseEntity<Flux<BankAccount>>> getAll() {
         return Mono.just(
-                        ResponseEntity.ok()
+                        ResponseEntity
+                                .ok()
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .body(bankAccountService.findAll()))
                 .defaultIfEmpty(ResponseEntity.notFound().build());
@@ -39,10 +42,11 @@ public class BankAccountRestController {
      * @param bankAccountRequest request to create bank account
      * @return bank account created
      */
-    @PostMapping("/bank-account")
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public Mono<ResponseEntity<BankAccount>> create(@RequestBody BankAccount bankAccountRequest) {
         return bankAccountService.create(bankAccountRequest)
-                .map(bac -> ResponseEntity.ok()
+                .map(bac -> ResponseEntity
+                        .created(URI.create(""))
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(bac));
     }
@@ -52,11 +56,12 @@ public class BankAccountRestController {
      * @param bankAccountRequest request for update bank account
      * @return bank account updated
      */
-    @PutMapping("/bank-account/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Mono<ResponseEntity<BankAccount>> update(@PathVariable(name = "id") String id,
                                                     @RequestBody BankAccount bankAccountRequest) {
         return bankAccountService.update(id, bankAccountRequest)
-                .map(bac -> ResponseEntity.ok()
+                .map(bac -> ResponseEntity
+                        .created(URI.create(""))
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(bac))
                 .defaultIfEmpty(ResponseEntity.notFound().build());
@@ -66,11 +71,11 @@ public class BankAccountRestController {
      * @param id bank account id to delete
      * @return void
      */
-    @DeleteMapping("/bank-account/{id}")
+    @DeleteMapping("/{id}")
     public Mono<ResponseEntity<Void>> delete(@PathVariable(name = "id") String id) {
         return bankAccountService.delete(id)
                 .then(Mono.just(
-                        new ResponseEntity<>(HttpStatus.OK)
+                        new ResponseEntity<>(HttpStatus.NO_CONTENT)
                 ));
     }
 

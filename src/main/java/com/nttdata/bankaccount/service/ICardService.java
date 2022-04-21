@@ -5,7 +5,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * This class defines the service of cards
+ * This interface defines the service of cards
  *
  * @author Alcibar Vasquez
  * @version 1.0

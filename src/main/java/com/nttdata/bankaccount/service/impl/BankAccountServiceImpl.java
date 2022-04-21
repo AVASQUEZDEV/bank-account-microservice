@@ -31,9 +31,9 @@ public class BankAccountServiceImpl implements IBankAccountService {
     }
 
     /**
-     * This method creates an bank account
+     * This method creates a bank account
      *
-     * @param bankAccountRequest request for create new bank account
+     * @param bankAccountRequest request to create new bank account
      * @return bank account created
      */
     @Override
@@ -42,10 +42,10 @@ public class BankAccountServiceImpl implements IBankAccountService {
     }
 
     /**
-     * This method updates an bank account
+     * This method updates a bank account
      *
      * @param id                 bank account id to update
-     * @param bankAccountRequest request for update bank account
+     * @param bankAccountRequest request to update bank account
      * @return bank account updated
      */
     @Override
@@ -63,10 +63,10 @@ public class BankAccountServiceImpl implements IBankAccountService {
     }
 
     /**
-     * This method delete an bank account
+     * This method delete a bank account
      *
      * @param id bank account id to delete
-     * @return a boolean value
+     * @return void
      */
     @Override
     public Mono<Void> delete(String id) {

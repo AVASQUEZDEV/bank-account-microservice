@@ -5,7 +5,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * This class defines the service of bank accounts
+ * This interface defines the service of bank accounts
  *
  * @author Alcibar Vasquez
  * @version 1.0

@@ -5,7 +5,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * This class defines the service of bank accounts charges
+ * This interface defines the service of bank accounts charges
  *
  * @author Alcibar Vasquez
  * @version 1.0

@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
+
 /**
  * This controller class defines the endpoints to cards
  *
@@ -18,7 +20,7 @@ import reactor.core.publisher.Mono;
  */
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/cards")
 public class CardRestController {
 
     private final ICardService cardService;
@@ -26,10 +28,11 @@ public class CardRestController {
     /**
      * @return list of cards
      */
-    @GetMapping(value = "/cards")
+    @GetMapping
     public Mono<ResponseEntity<Flux<Card>>> getAll() {
         return Mono.just(
-                        ResponseEntity.ok()
+                        ResponseEntity
+                                .ok()
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .body(cardService.findAll()))
                 .defaultIfEmpty(ResponseEntity.notFound().build());
@@ -39,10 +42,11 @@ public class CardRestController {
      * @param card request to create card
      * @return card created
      */
-    @PostMapping(value = "/card", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public Mono<ResponseEntity<Card>> create(@RequestBody Card card) {
         return cardService.create(card)
-                .map(bac -> ResponseEntity.ok()
+                .map(bac -> ResponseEntity
+                        .created(URI.create(""))
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(bac));
     }
@@ -52,11 +56,12 @@ public class CardRestController {
      * @param cardRequest request for update card
      * @return card updated
      */
-    @PutMapping(value = "/card/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Mono<ResponseEntity<Card>> update(@PathVariable(name = "id") String id,
                                              @RequestBody Card cardRequest) {
         return cardService.update(id, cardRequest)
-                .map(bac -> ResponseEntity.ok()
+                .map(bac -> ResponseEntity
+                        .created(URI.create(""))
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(bac))
                 .defaultIfEmpty(ResponseEntity.notFound().build());
@@ -66,11 +71,11 @@ public class CardRestController {
      * @param id card id to delete
      * @return void
      */
-    @DeleteMapping("/card/{id}")
+    @DeleteMapping("/{id}")
     public Mono<ResponseEntity<Void>> delete(@PathVariable(name = "id") String id) {
         return cardService.delete(id)
                 .then(Mono.just(
-                        new ResponseEntity<>(HttpStatus.OK)
+                        new ResponseEntity<>(HttpStatus.NO_CONTENT)
                 ));
     }
 
