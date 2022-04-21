@@ -29,7 +29,7 @@ public class BankAccountChargeRestController {
      * @return list of bank account charges
      */
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public Flux<BankAccountCharge> getAll() {
         return bankAccountChargeService.findAll();
     }
@@ -39,7 +39,9 @@ public class BankAccountChargeRestController {
      * @return bank account charge created
      */
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<BankAccountCharge> create(@RequestBody BankAccountCharge bankAccChargeRequest) {
         return bankAccountChargeService.create(bankAccChargeRequest);
     }
@@ -50,7 +52,10 @@ public class BankAccountChargeRestController {
      * @return bank account charge updated
      */
     @ResponseStatus(HttpStatus.CREATED)
-    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(
+            value = "/{id}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<BankAccountCharge> update(@PathVariable(name = "id") String id,
                                           @RequestBody BankAccountCharge bankAccChargeRequest) {
         return bankAccountChargeService.update(id, bankAccChargeRequest);
