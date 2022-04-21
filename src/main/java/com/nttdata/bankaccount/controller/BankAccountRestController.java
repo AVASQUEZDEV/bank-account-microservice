@@ -28,27 +28,20 @@ public class BankAccountRestController {
     /**
      * @return list of bank accounts
      */
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping
-    public Mono<ResponseEntity<Flux<BankAccount>>> getAll() {
-        return Mono.just(
-                        ResponseEntity
-                                .ok()
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .body(bankAccountService.findAll()))
-                .defaultIfEmpty(ResponseEntity.notFound().build());
+    public Flux<BankAccount> getAll() {
+        return bankAccountService.findAll();
     }
 
     /**
      * @param bankAccountRequest request to create bank account
      * @return bank account created
      */
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<ResponseEntity<BankAccount>> create(@RequestBody BankAccount bankAccountRequest) {
-        return bankAccountService.create(bankAccountRequest)
-                .map(bac -> ResponseEntity
-                        .created(URI.create(""))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(bac));
+    public Mono<BankAccount> create(@RequestBody BankAccount bankAccountRequest) {
+        return bankAccountService.create(bankAccountRequest);
     }
 
     /**
@@ -56,27 +49,22 @@ public class BankAccountRestController {
      * @param bankAccountRequest request for update bank account
      * @return bank account updated
      */
+    @ResponseStatus(HttpStatus.CREATED)
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<ResponseEntity<BankAccount>> update(@PathVariable(name = "id") String id,
-                                                    @RequestBody BankAccount bankAccountRequest) {
-        return bankAccountService.update(id, bankAccountRequest)
-                .map(bac -> ResponseEntity
-                        .created(URI.create(""))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(bac))
-                .defaultIfEmpty(ResponseEntity.notFound().build());
+    public Mono<BankAccount> update(
+            @PathVariable(name = "id") String id,
+            @RequestBody BankAccount bankAccountRequest) {
+        return bankAccountService.update(id, bankAccountRequest);
     }
 
     /**
      * @param id bank account id to delete
      * @return void
      */
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
-    public Mono<ResponseEntity<Void>> delete(@PathVariable(name = "id") String id) {
-        return bankAccountService.delete(id)
-                .then(Mono.just(
-                        new ResponseEntity<>(HttpStatus.NO_CONTENT)
-                ));
+    public Mono<Void> delete(@PathVariable(name = "id") String id) {
+        return bankAccountService.delete(id);
     }
 
 }

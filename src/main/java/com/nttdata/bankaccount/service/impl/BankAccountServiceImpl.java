@@ -4,7 +4,11 @@ import com.nttdata.bankaccount.model.BankAccount;
 import com.nttdata.bankaccount.repository.IBankAccountRepository;
 import com.nttdata.bankaccount.service.IBankAccountService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -18,6 +22,8 @@ import reactor.core.publisher.Mono;
 @Service
 public class BankAccountServiceImpl implements IBankAccountService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(BankAccountServiceImpl.class);
+
     private final IBankAccountRepository bankAccountRepository;
 
     /**
@@ -27,7 +33,11 @@ public class BankAccountServiceImpl implements IBankAccountService {
      */
     @Override
     public Flux<BankAccount> findAll() {
-        return bankAccountRepository.findAll();
+        return bankAccountRepository.findAll()
+                .onErrorResume(e -> {
+                    LOGGER.error("[" + getClass().getName() + "][findAll]" + e);
+                    return Mono.error(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "" + e));
+                });
     }
 
     /**
@@ -38,7 +48,13 @@ public class BankAccountServiceImpl implements IBankAccountService {
      */
     @Override
     public Mono<BankAccount> create(BankAccount bankAccountRequest) {
-        return bankAccountRepository.save(bankAccountRequest);
+        return bankAccountRepository.save(bankAccountRequest)
+                .onErrorResume(e -> {
+                    LOGGER.error("[" + getClass().getName() + "][create]" + e);
+                    return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request" + e));
+                }).switchIfEmpty(
+                        Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND))
+                );
     }
 
     /**
@@ -59,7 +75,12 @@ public class BankAccountServiceImpl implements IBankAccountService {
                     ba.setExpirationDate(bankAccountRequest.getExpirationDate());
                     ba.setUpdatedAt(bankAccountRequest.getUpdatedAt());
                     return bankAccountRepository.save(ba);
-                });
+                }).onErrorResume(e -> {
+                    LOGGER.error("[" + getClass().getName() + "][update]" + e);
+                    return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "" + e));
+                }).switchIfEmpty(
+                        Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND))
+                );
     }
 
     /**
@@ -70,6 +91,10 @@ public class BankAccountServiceImpl implements IBankAccountService {
      */
     @Override
     public Mono<Void> delete(String id) {
-        return bankAccountRepository.deleteById(id);
+        return bankAccountRepository.deleteById(id)
+                .onErrorResume(e -> {
+                    LOGGER.error("[" + getClass().getName() + "][delete]" + e);
+                    return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "" + e));
+                });
     }
 }

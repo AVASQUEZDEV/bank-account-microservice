@@ -4,7 +4,11 @@ import com.nttdata.bankaccount.model.BankAccountCharge;
 import com.nttdata.bankaccount.repository.IBankAccountChargeRepository;
 import com.nttdata.bankaccount.service.IBankAccountChargeService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -18,6 +22,8 @@ import reactor.core.publisher.Mono;
 @Service
 public class BankAccountChargeServiceImpl implements IBankAccountChargeService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(BankAccountChargeServiceImpl.class);
+
     private final IBankAccountChargeRepository bankAccountChargeRepository;
 
     /**
@@ -27,7 +33,11 @@ public class BankAccountChargeServiceImpl implements IBankAccountChargeService {
      */
     @Override
     public Flux<BankAccountCharge> findAll() {
-        return bankAccountChargeRepository.findAll();
+        return bankAccountChargeRepository.findAll()
+                .onErrorResume(e -> {
+                    LOGGER.error("[" + getClass().getName() + "][findAll]" + e);
+                    return Mono.error(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "" + e));
+                });
     }
 
     /**
@@ -38,7 +48,13 @@ public class BankAccountChargeServiceImpl implements IBankAccountChargeService {
      */
     @Override
     public Mono<BankAccountCharge> create(BankAccountCharge bankAccChargeRequest) {
-        return bankAccountChargeRepository.save(bankAccChargeRequest);
+        return bankAccountChargeRepository.save(bankAccChargeRequest)
+                .onErrorResume(e -> {
+                    LOGGER.error("[" + getClass().getName() + "][create]" + e);
+                    return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request" + e));
+                }).switchIfEmpty(
+                        Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND))
+                );
     }
 
     /**
@@ -57,7 +73,12 @@ public class BankAccountChargeServiceImpl implements IBankAccountChargeService {
                     bac.setMovementsQuantity(bankAccChargeRequest.getMovementsQuantity());
                     bac.setUpdatedAt(bankAccChargeRequest.getUpdatedAt());
                     return bankAccountChargeRepository.save(bac);
-                });
+                }).onErrorResume(e -> {
+                    LOGGER.error("[" + getClass().getName() + "][update]" + e);
+                    return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request" + e));
+                }).switchIfEmpty(
+                        Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND))
+                );
     }
 
     /**
@@ -68,7 +89,11 @@ public class BankAccountChargeServiceImpl implements IBankAccountChargeService {
      */
     @Override
     public Mono<Void> delete(String id) {
-        return bankAccountChargeRepository.deleteById(id);
+        return bankAccountChargeRepository.deleteById(id)
+                .onErrorResume(e -> {
+                    LOGGER.error("[" + getClass().getName() + "][delete]" + e);
+                    return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request" + e));
+                });
     }
 
 }

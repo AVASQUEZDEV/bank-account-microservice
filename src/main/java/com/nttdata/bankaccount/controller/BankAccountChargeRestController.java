@@ -28,27 +28,20 @@ public class BankAccountChargeRestController {
     /**
      * @return list of bank account charges
      */
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping
-    public Mono<ResponseEntity<Flux<BankAccountCharge>>> getAll() {
-        return Mono.just(
-                        ResponseEntity
-                                .ok()
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .body(bankAccountChargeService.findAll()))
-                .defaultIfEmpty(ResponseEntity.notFound().build());
+    public Flux<BankAccountCharge> getAll() {
+        return bankAccountChargeService.findAll();
     }
 
     /**
      * @param bankAccChargeRequest request to create bank account charge
      * @return bank account charge created
      */
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<ResponseEntity<BankAccountCharge>> create(@RequestBody BankAccountCharge bankAccChargeRequest) {
-        return bankAccountChargeService.create(bankAccChargeRequest)
-                .map(bac -> ResponseEntity
-                        .created(URI.create(""))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(bac));
+    public Mono<BankAccountCharge> create(@RequestBody BankAccountCharge bankAccChargeRequest) {
+        return bankAccountChargeService.create(bankAccChargeRequest);
     }
 
     /**
@@ -56,27 +49,21 @@ public class BankAccountChargeRestController {
      * @param bankAccChargeRequest request for update bank account charge
      * @return bank account charge updated
      */
+    @ResponseStatus(HttpStatus.CREATED)
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<ResponseEntity<BankAccountCharge>> update(@PathVariable(name = "id") String id,
-                                                          @RequestBody BankAccountCharge bankAccChargeRequest) {
-        return bankAccountChargeService.update(id, bankAccChargeRequest)
-                .map(bac -> ResponseEntity
-                        .created(URI.create(""))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(bac))
-                .defaultIfEmpty(ResponseEntity.notFound().build());
+    public Mono<BankAccountCharge> update(@PathVariable(name = "id") String id,
+                                          @RequestBody BankAccountCharge bankAccChargeRequest) {
+        return bankAccountChargeService.update(id, bankAccChargeRequest);
     }
 
     /**
      * @param id bank account charge id to delete
      * @return void
      */
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
-    public Mono<ResponseEntity<Void>> delete(@PathVariable(name = "id") String id) {
-        return bankAccountChargeService.delete(id)
-                .then(Mono.just(
-                        new ResponseEntity<>(HttpStatus.NO_CONTENT)
-                ));
+    public Mono<Void> delete(@PathVariable(name = "id") String id) {
+        return bankAccountChargeService.delete(id);
     }
 
 }

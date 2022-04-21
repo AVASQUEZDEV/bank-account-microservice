@@ -4,8 +4,11 @@ import com.nttdata.bankaccount.model.Card;
 import com.nttdata.bankaccount.repository.ICardRepository;
 import com.nttdata.bankaccount.service.ICardService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -19,6 +22,8 @@ import reactor.core.publisher.Mono;
 @Service
 public class CardServiceImpl implements ICardService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CardServiceImpl.class);
+
     private final ICardRepository cardRepository;
 
     /**
@@ -28,7 +33,11 @@ public class CardServiceImpl implements ICardService {
      */
     @Override
     public Flux<Card> findAll() {
-        return cardRepository.findAll();
+        return cardRepository.findAll()
+                .onErrorResume(e -> {
+                    LOGGER.error("[" + getClass().getName() + "][findAll]" + e.getMessage());
+                    return Mono.error(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "" + e));
+                });
     }
 
     /**
@@ -39,7 +48,13 @@ public class CardServiceImpl implements ICardService {
      */
     @Override
     public Mono<Card> create(Card cardRequest) {
-        return cardRepository.save(cardRequest);
+        return cardRepository.save(cardRequest)
+                .onErrorResume(e -> {
+                    LOGGER.error("[" + getClass().getName() + "][create]" + e);
+                    return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request" + e));
+                }).switchIfEmpty(
+                        Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND))
+                );
     }
 
     /**
@@ -57,7 +72,12 @@ public class CardServiceImpl implements ICardService {
                     c.setName(cardRequest.getName());
                     c.setUpdatedAt(cardRequest.getUpdatedAt());
                     return cardRepository.save(c);
-                });
+                }).onErrorResume(e -> {
+                    LOGGER.error("[" + getClass().getName() + "][update]" + e.getMessage());
+                    return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request" + e));
+                }).switchIfEmpty(
+                        Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND))
+                );
     }
 
     /**
@@ -68,6 +88,10 @@ public class CardServiceImpl implements ICardService {
      */
     @Override
     public Mono<Void> delete(String id) {
-        return cardRepository.deleteById(id);
+        return cardRepository.deleteById(id)
+                .onErrorResume(e -> {
+                    LOGGER.error("[" + getClass().getName() + "][delete]" + e);
+                    return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request" + e));
+                });
     }
 }
