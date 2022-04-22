@@ -24,7 +24,8 @@ public class AppUtil {
     public static Date dateFormat(Date date) {
         String pattern = "yyyy-MM-dd HH:mm:ss";
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
-        return new SimpleDateFormat().parse(simpleDateFormat.format(date));
+        String newDate = simpleDateFormat.format(date);
+        return simpleDateFormat.parse(newDate);
     }
 
 }

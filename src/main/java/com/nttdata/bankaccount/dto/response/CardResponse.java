@@ -11,13 +11,13 @@ public class CardResponse {
     @JsonProperty(value = "id")
     private String id;
 
-    @JsonProperty(value = "id")
+    @JsonProperty(value = "name")
     private String name;
 
-    @JsonProperty(value = "id")
+    @JsonProperty(value = "createdAt")
     private Date createdAt;
 
-    @JsonProperty(value = "id")
+    @JsonProperty(value = "updatedAt")
     private Date updatedAt;
 
     public CardResponse(String id, String name, Date createdAt, Date updatedAt) {

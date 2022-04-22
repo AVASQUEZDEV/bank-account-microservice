@@ -1,6 +1,7 @@
 package com.nttdata.bankaccount.dto.convertion;
 
 import com.nttdata.bankaccount.dto.request.CardRequest;
+import com.nttdata.bankaccount.dto.response.ApiResponse;
 import com.nttdata.bankaccount.dto.response.CardResponse;
 import com.nttdata.bankaccount.model.Card;
 import com.nttdata.bankaccount.util.AppUtil;
@@ -37,13 +38,17 @@ public class CardConvertion {
         }
     }
 
-    public static Mono<CardResponse> toResponse(Mono<Card> card) {
+    public static Mono<ApiResponse<CardResponse>> toResponse(Mono<Card> card) {
         return card.flatMap(c -> Mono.just(
-                new CardResponse(
-                        c.getId(),
-                        c.getName(),
-                        c.getCreatedAt(),
-                        c.getCreatedAt()
+                new ApiResponse<>(
+                        "",
+                        "",
+                        new CardResponse(
+                                c.getId(),
+                                c.getName(),
+                                c.getCreatedAt(),
+                                c.getCreatedAt()
+                        )
                 ))
         );
     }

@@ -2,6 +2,7 @@ package com.nttdata.bankaccount.controller;
 
 import com.nttdata.bankaccount.dto.convertion.CardConvertion;
 import com.nttdata.bankaccount.dto.request.CardRequest;
+import com.nttdata.bankaccount.dto.response.ApiResponse;
 import com.nttdata.bankaccount.dto.response.CardResponse;
 import com.nttdata.bankaccount.model.Card;
 import com.nttdata.bankaccount.service.ICardService;
@@ -42,7 +43,7 @@ public class CardRestController {
     @PostMapping(
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<CardResponse> create(@RequestBody CardRequest cardRequest) {
+    public Mono<ApiResponse<CardResponse>> create(@RequestBody CardRequest cardRequest) {
         return CardConvertion.toResponse(cardService.create(cardRequest));
     }
 
