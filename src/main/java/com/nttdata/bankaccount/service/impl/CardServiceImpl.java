@@ -1,8 +1,11 @@
 package com.nttdata.bankaccount.service.impl;
 
+import com.nttdata.bankaccount.dto.convertion.CardConvertion;
+import com.nttdata.bankaccount.dto.request.CardRequest;
 import com.nttdata.bankaccount.model.Card;
 import com.nttdata.bankaccount.repository.ICardRepository;
 import com.nttdata.bankaccount.service.ICardService;
+import com.nttdata.bankaccount.enums.RestMethod;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,8 +50,9 @@ public class CardServiceImpl implements ICardService {
      * @return card created
      */
     @Override
-    public Mono<Card> create(Card cardRequest) {
-        return cardRepository.save(cardRequest)
+    public Mono<Card> create(CardRequest cardRequest) {
+       Card card = CardConvertion.toModel(cardRequest, RestMethod.POST);
+        return cardRepository.save(card)
                 .onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][create]" + e);
                     return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request" + e));

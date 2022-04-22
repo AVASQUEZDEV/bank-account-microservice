@@ -1,5 +1,8 @@
 package com.nttdata.bankaccount.controller;
 
+import com.nttdata.bankaccount.dto.convertion.CardConvertion;
+import com.nttdata.bankaccount.dto.request.CardRequest;
+import com.nttdata.bankaccount.dto.response.CardResponse;
 import com.nttdata.bankaccount.model.Card;
 import com.nttdata.bankaccount.service.ICardService;
 import lombok.RequiredArgsConstructor;
@@ -39,8 +42,8 @@ public class CardRestController {
     @PostMapping(
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<Card> create(@RequestBody Card card) {
-        return cardService.create(card);
+    public Mono<CardResponse> create(@RequestBody CardRequest cardRequest) {
+        return CardConvertion.toResponse(cardService.create(cardRequest));
     }
 
     /**

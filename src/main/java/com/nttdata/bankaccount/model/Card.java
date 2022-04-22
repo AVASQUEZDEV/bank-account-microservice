@@ -3,6 +3,7 @@ package com.nttdata.bankaccount.model;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -18,6 +19,7 @@ import java.util.Date;
  */
 @Data
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "cards")
 public class Card {
@@ -28,12 +30,21 @@ public class Card {
     @Field(name = "name")
     private String name;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Field(name = "created_at")
     private Date createdAt;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Field(name = "updated_at")
     private Date updatedAt;
+
+    public Card(String name, Date createdAt, Date updatedAt) {
+        this.name = name;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+    public Card(String name, Date updatedAt) {
+        this.name = name;
+        this.updatedAt = updatedAt;
+    }
 
 }
