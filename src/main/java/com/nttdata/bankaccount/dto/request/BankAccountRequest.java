@@ -19,4 +19,6 @@ public class BankAccountRequest {
 
     private Date expirationDate;
 
+    private Float balance;
+
 }

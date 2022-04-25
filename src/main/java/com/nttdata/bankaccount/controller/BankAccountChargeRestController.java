@@ -40,6 +40,15 @@ public class BankAccountChargeRestController {
     }
 
     /**
+     * @return bank account charge
+     */
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Mono<BankAccountChargeResponse> getById(@PathVariable(name = "id") String id) {
+        return bankAccountChargeMapper.toMonoResponse(bankAccountChargeService.findById(id));
+    }
+
+    /**
      * @param request request to create bank account charge
      * @return bank account charge created
      */

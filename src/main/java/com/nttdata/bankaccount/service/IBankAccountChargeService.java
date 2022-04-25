@@ -15,6 +15,8 @@ public interface IBankAccountChargeService {
 
     Flux<BankAccountCharge> findAll();
 
+    Mono<BankAccountCharge> findById(String id);
+
     Mono<BankAccountCharge> create(BankAccountChargeRequest request);
 
     Mono<BankAccountCharge> update(String id, BankAccountChargeRequest request);

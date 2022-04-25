@@ -44,6 +44,21 @@ public class BankAccountChargeServiceImpl implements IBankAccountChargeService {
     }
 
     /**
+     * This method return one bank account charge
+     *
+     * @param id request
+     * @return bank account charge
+     */
+    @Override
+    public Mono<BankAccountCharge> findById(String id) {
+        return bankAccountChargeRepository.findById(id)
+                .onErrorResume(e -> {
+                    LOGGER.error("[" + getClass().getName() + "][findById]" + e.getMessage());
+                    return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "" + e));
+                }).switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
+    }
+
+    /**
      * This method creates a bank account charges
      *
      * @param request request to create new bank account charges
@@ -68,7 +83,7 @@ public class BankAccountChargeServiceImpl implements IBankAccountChargeService {
      */
     @Override
     public Mono<BankAccountCharge> update(String id, BankAccountChargeRequest request) {
-        return findAll().filter(bac -> bac.getId().equals(id)).single()
+        return findById(id)
                 .flatMap(bac -> bankAccountChargeMapper.toPutModel(bac, request)
                         .flatMap(bankAccountChargeRepository::save))
                 .onErrorResume(e -> {

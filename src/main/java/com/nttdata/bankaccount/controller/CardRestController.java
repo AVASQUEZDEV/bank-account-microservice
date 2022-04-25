@@ -38,6 +38,15 @@ public class CardRestController {
     }
 
     /**
+     * @return card
+     */
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Mono<CardResponse> getById(@PathVariable(name = "id") String id) {
+        return cardMapper.toMonoResponse(cardService.findById(id));
+    }
+
+    /**
      * @param cardRequest request to create card
      * @return card created
      */

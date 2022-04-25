@@ -15,6 +15,8 @@ public interface ICardService {
 
     Flux<Card> findAll();
 
+    Mono<Card> findById(String id);
+
     Mono<Card> create(CardRequest request);
 
     Mono<Card> update(String id, CardRequest request);

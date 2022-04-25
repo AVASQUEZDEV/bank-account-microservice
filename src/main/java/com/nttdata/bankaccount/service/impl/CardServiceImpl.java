@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -45,6 +46,21 @@ public class CardServiceImpl implements ICardService {
     }
 
     /**
+     * This method return one card
+     *
+     * @param id request param
+     * @return card
+     */
+    @Override
+    public Mono<Card> findById(String id) {
+        return cardRepository.findById(id)
+                .onErrorResume(e -> {
+                    LOGGER.error("[" + getClass().getName() + "][findById]" + e.getMessage());
+                    return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "" + e));
+                }).switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
+    }
+
+    /**
      * This method creates a card
      *
      * @param request request to create new card
@@ -57,9 +73,7 @@ public class CardServiceImpl implements ICardService {
                 .onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][create]" + e);
                     return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request" + e));
-                }).switchIfEmpty(
-                        Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND))
-                );
+                }).switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
     }
 
     /**
@@ -71,16 +85,13 @@ public class CardServiceImpl implements ICardService {
      */
     @Override
     public Mono<Card> update(String id, CardRequest request) {
-        return findAll().filter(c -> c.getId().equals(id))
-                .single()
+        return findById(id)
                 .flatMap(c -> cardMapper.toPutModel(c, request)
                         .flatMap(cardRepository::save))
                 .onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][update]" + e.getMessage());
                     return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request" + e));
-                }).switchIfEmpty(
-                        Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND))
-                );
+                }).switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
     }
 
     /**

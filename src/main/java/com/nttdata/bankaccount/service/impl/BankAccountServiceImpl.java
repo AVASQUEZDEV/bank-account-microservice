@@ -14,6 +14,8 @@ import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Optional;
+
 /**
  * This class defines the service of bank accounts
  *
@@ -45,6 +47,21 @@ public class BankAccountServiceImpl implements IBankAccountService {
     }
 
     /**
+     * This method return one bank account
+     *
+     * @param id request
+     * @return bank account
+     */
+    @Override
+    public Mono<BankAccount> findById(String id) {
+        return bankAccountRepository.findById(id)
+                .onErrorResume(e -> {
+                    LOGGER.error("[" + getClass().getName() + "][findById]" + e.getMessage());
+                    return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "" + e));
+                }).switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
+    }
+
+    /**
      * This method creates a bank account
      *
      * @param request request to create new bank account
@@ -57,9 +74,7 @@ public class BankAccountServiceImpl implements IBankAccountService {
                 .onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][create]" + e);
                     return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request" + e));
-                }).switchIfEmpty(
-                        Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND))
-                );
+                }).switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
     }
 
     /**
@@ -71,17 +86,13 @@ public class BankAccountServiceImpl implements IBankAccountService {
      */
     @Override
     public Mono<BankAccount> update(String id, BankAccountRequest request) {
-        return findAll()
-                .filter(ba -> ba.getId().equals(id))
-                .single()
+        return findById(id)
                 .flatMap(ba -> bankAccountMapper.toPutModel(ba, request)
                         .flatMap(bankAccountRepository::save)
                 ).onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][update]" + e);
                     return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "" + e));
-                }).switchIfEmpty(
-                        Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND))
-                );
+                }).switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
     }
 
     /**

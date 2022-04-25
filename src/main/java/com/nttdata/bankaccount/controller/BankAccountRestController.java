@@ -40,6 +40,15 @@ public class BankAccountRestController {
     }
 
     /**
+     * @return a bank account
+     */
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Mono<BankAccountResponse> getById(@PathVariable(name = "id") String id) {
+        return bankAccountMapper.toMonoResponse(bankAccountService.findById(id));
+    }
+
+    /**
      * @param request request to create bank account
      * @return bank account created
      */
