@@ -1,6 +1,6 @@
 package com.nttdata.bankaccount.controller;
 
-import com.nttdata.bankaccount.dto.convertion.CardConvertion;
+import com.nttdata.bankaccount.dto.mapper.CardMapper;
 import com.nttdata.bankaccount.dto.request.CardRequest;
 import com.nttdata.bankaccount.dto.response.ApiResponse;
 import com.nttdata.bankaccount.dto.response.CardResponse;
@@ -26,30 +26,32 @@ public class CardRestController {
 
     private final ICardService cardService;
 
+    private final CardMapper cardMapper;
+
     /**
      * @return list of cards
      */
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public Flux<Card> getAll() {
-        return cardService.findAll();
+    public Flux<CardResponse> getAll() {
+        return cardMapper.toFluxResponse(cardService.findAll());
     }
 
     /**
-     * @param card request to create card
+     * @param cardRequest request to create card
      * @return card created
      */
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<ApiResponse<CardResponse>> create(@RequestBody CardRequest cardRequest) {
-        return CardConvertion.toResponse(cardService.create(cardRequest));
+    public Mono<CardResponse> create(@RequestBody CardRequest cardRequest) {
+        return cardMapper.toMonoResponse(cardService.create(cardRequest));
     }
 
     /**
-     * @param id          card id to update
-     * @param cardRequest request for update card
+     * @param id      card id to update
+     * @param request request for update card
      * @return card updated
      */
     @ResponseStatus(HttpStatus.CREATED)
@@ -57,9 +59,9 @@ public class CardRestController {
             value = "/{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<Card> update(@PathVariable(name = "id") String id,
-                             @RequestBody Card cardRequest) {
-        return cardService.update(id, cardRequest);
+    public Mono<CardResponse> update(@PathVariable(name = "id") String id,
+                                     @RequestBody CardRequest request) {
+        return cardMapper.toMonoResponse(cardService.update(id, request));
     }
 
     /**
@@ -68,8 +70,8 @@ public class CardRestController {
      */
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
-    public Mono<Void> delete(@PathVariable(name = "id") String id) {
-        return cardService.delete(id);
+    public Mono<Void> deleteById(@PathVariable(name = "id") String id) {
+        return cardService.deleteById(id);
     }
 
 }

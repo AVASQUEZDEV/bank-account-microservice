@@ -1,5 +1,7 @@
 package com.nttdata.bankaccount.service.impl;
 
+import com.nttdata.bankaccount.dto.mapper.BankAccountMapper;
+import com.nttdata.bankaccount.dto.request.BankAccountRequest;
 import com.nttdata.bankaccount.model.BankAccount;
 import com.nttdata.bankaccount.repository.IBankAccountRepository;
 import com.nttdata.bankaccount.service.IBankAccountService;
@@ -26,6 +28,8 @@ public class BankAccountServiceImpl implements IBankAccountService {
 
     private final IBankAccountRepository bankAccountRepository;
 
+    private final BankAccountMapper bankAccountMapper;
+
     /**
      * This method returns a list of bank accounts
      *
@@ -43,12 +47,13 @@ public class BankAccountServiceImpl implements IBankAccountService {
     /**
      * This method creates a bank account
      *
-     * @param bankAccountRequest request to create new bank account
+     * @param request request to create new bank account
      * @return bank account created
      */
     @Override
-    public Mono<BankAccount> create(BankAccount bankAccountRequest) {
-        return bankAccountRepository.save(bankAccountRequest)
+    public Mono<BankAccount> create(BankAccountRequest request) {
+        return bankAccountMapper.toPostModel(request)
+                .flatMap(bankAccountRepository::save)
                 .onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][create]" + e);
                     return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request" + e));
@@ -60,22 +65,18 @@ public class BankAccountServiceImpl implements IBankAccountService {
     /**
      * This method updates a bank account
      *
-     * @param id                 bank account id to update
-     * @param bankAccountRequest request to update bank account
+     * @param id      bank account id to update
+     * @param request request to update bank account
      * @return bank account updated
      */
     @Override
-    public Mono<BankAccount> update(String id, BankAccount bankAccountRequest) {
+    public Mono<BankAccount> update(String id, BankAccountRequest request) {
         return findAll()
                 .filter(ba -> ba.getId().equals(id))
                 .single()
-                .flatMap(ba -> {
-                    ba.setCardNumber(bankAccountRequest.getCardNumber());
-                    ba.setSecurityCode(bankAccountRequest.getSecurityCode());
-                    ba.setExpirationDate(bankAccountRequest.getExpirationDate());
-                    ba.setUpdatedAt(bankAccountRequest.getUpdatedAt());
-                    return bankAccountRepository.save(ba);
-                }).onErrorResume(e -> {
+                .flatMap(ba -> bankAccountMapper.toPutModel(ba, request)
+                        .flatMap(bankAccountRepository::save)
+                ).onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][update]" + e);
                     return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "" + e));
                 }).switchIfEmpty(
@@ -90,10 +91,10 @@ public class BankAccountServiceImpl implements IBankAccountService {
      * @return void
      */
     @Override
-    public Mono<Void> delete(String id) {
+    public Mono<Void> deleteById(String id) {
         return bankAccountRepository.deleteById(id)
                 .onErrorResume(e -> {
-                    LOGGER.error("[" + getClass().getName() + "][delete]" + e);
+                    LOGGER.error("[" + getClass().getName() + "][deleteById]" + e);
                     return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "" + e));
                 });
     }

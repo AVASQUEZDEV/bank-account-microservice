@@ -42,9 +42,4 @@ public class Card {
         this.updatedAt = updatedAt;
     }
 
-    public Card(String name, Date updatedAt) {
-        this.name = name;
-        this.updatedAt = updatedAt;
-    }
-
 }

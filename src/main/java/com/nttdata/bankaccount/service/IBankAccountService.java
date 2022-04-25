@@ -1,5 +1,6 @@
 package com.nttdata.bankaccount.service;
 
+import com.nttdata.bankaccount.dto.request.BankAccountRequest;
 import com.nttdata.bankaccount.model.BankAccount;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -14,10 +15,10 @@ public interface IBankAccountService {
 
     Flux<BankAccount> findAll();
 
-    Mono<BankAccount> create(BankAccount bankAccountRequest);
+    Mono<BankAccount> create(BankAccountRequest request);
 
-    Mono<BankAccount> update(String id, BankAccount bankAccountRequest);
+    Mono<BankAccount> update(String id, BankAccountRequest request);
 
-    Mono<Void> delete(String id);
+    Mono<Void> deleteById(String id);
 
 }

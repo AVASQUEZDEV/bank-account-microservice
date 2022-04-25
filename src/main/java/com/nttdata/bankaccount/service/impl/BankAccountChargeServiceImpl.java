@@ -1,5 +1,7 @@
 package com.nttdata.bankaccount.service.impl;
 
+import com.nttdata.bankaccount.dto.mapper.BankAccountChargeMapper;
+import com.nttdata.bankaccount.dto.request.BankAccountChargeRequest;
 import com.nttdata.bankaccount.model.BankAccountCharge;
 import com.nttdata.bankaccount.repository.IBankAccountChargeRepository;
 import com.nttdata.bankaccount.service.IBankAccountChargeService;
@@ -26,6 +28,8 @@ public class BankAccountChargeServiceImpl implements IBankAccountChargeService {
 
     private final IBankAccountChargeRepository bankAccountChargeRepository;
 
+    private final BankAccountChargeMapper bankAccountChargeMapper;
+
     /**
      * This method returns a list of bank accounts charges
      *
@@ -33,52 +37,44 @@ public class BankAccountChargeServiceImpl implements IBankAccountChargeService {
      */
     @Override
     public Flux<BankAccountCharge> findAll() {
-        return bankAccountChargeRepository.findAll()
-                .onErrorResume(e -> {
-                    LOGGER.error("[" + getClass().getName() + "][findAll]" + e);
-                    return Mono.error(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "" + e));
-                });
+        return bankAccountChargeRepository.findAll().onErrorResume(e -> {
+            LOGGER.error("[" + getClass().getName() + "][findAll]" + e);
+            return Mono.error(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "" + e));
+        });
     }
 
     /**
      * This method creates a bank account charges
      *
-     * @param bankAccChargeRequest request to create new bank account charges
+     * @param request request to create new bank account charges
      * @return bank account charges created
      */
     @Override
-    public Mono<BankAccountCharge> create(BankAccountCharge bankAccChargeRequest) {
-        return bankAccountChargeRepository.save(bankAccChargeRequest)
+    public Mono<BankAccountCharge> create(BankAccountChargeRequest request) {
+        return bankAccountChargeMapper.toPostModel(request)
+                .flatMap(bankAccountChargeRepository::save)
                 .onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][create]" + e);
                     return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request" + e));
-                }).switchIfEmpty(
-                        Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND))
-                );
+                }).switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
     }
 
     /**
      * This method updates a bank account charges
      *
-     * @param id                   bank account charge id to update
-     * @param bankAccChargeRequest request to update bank account charge
+     * @param id      bank account charge id to update
+     * @param request request to update bank account charge
      * @return bank account charge updated
      */
     @Override
-    public Mono<BankAccountCharge> update(String id, BankAccountCharge bankAccChargeRequest) {
-        return findAll().filter(bac -> bac.getId().equals(id))
-                .single()
-                .flatMap(bac -> {
-                    bac.setCommission(bankAccChargeRequest.getCommission());
-                    bac.setMovementsQuantity(bankAccChargeRequest.getMovementsQuantity());
-                    bac.setUpdatedAt(bankAccChargeRequest.getUpdatedAt());
-                    return bankAccountChargeRepository.save(bac);
-                }).onErrorResume(e -> {
+    public Mono<BankAccountCharge> update(String id, BankAccountChargeRequest request) {
+        return findAll().filter(bac -> bac.getId().equals(id)).single()
+                .flatMap(bac -> bankAccountChargeMapper.toPutModel(bac, request)
+                        .flatMap(bankAccountChargeRepository::save))
+                .onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][update]" + e);
                     return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request" + e));
-                }).switchIfEmpty(
-                        Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND))
-                );
+                }).switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
     }
 
     /**
@@ -88,12 +84,11 @@ public class BankAccountChargeServiceImpl implements IBankAccountChargeService {
      * @return void
      */
     @Override
-    public Mono<Void> delete(String id) {
-        return bankAccountChargeRepository.deleteById(id)
-                .onErrorResume(e -> {
-                    LOGGER.error("[" + getClass().getName() + "][delete]" + e);
-                    return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request" + e));
-                });
+    public Mono<Void> deleteById(String id) {
+        return bankAccountChargeRepository.deleteById(id).onErrorResume(e -> {
+            LOGGER.error("[" + getClass().getName() + "][delete]" + e);
+            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request" + e));
+        });
     }
 
 }

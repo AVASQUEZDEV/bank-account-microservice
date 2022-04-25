@@ -15,10 +15,10 @@ public interface ICardService {
 
     Flux<Card> findAll();
 
-    Mono<Card> create(CardRequest cardRequest);
+    Mono<Card> create(CardRequest request);
 
-    Mono<Card> update(String id, Card cardRequest);
+    Mono<Card> update(String id, CardRequest request);
 
-    Mono<Void> delete(String id);
+    Mono<Void> deleteById(String id);
 
 }

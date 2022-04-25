@@ -1,11 +1,10 @@
 package com.nttdata.bankaccount.service.impl;
 
-import com.nttdata.bankaccount.dto.convertion.CardConvertion;
+import com.nttdata.bankaccount.dto.mapper.CardMapper;
 import com.nttdata.bankaccount.dto.request.CardRequest;
 import com.nttdata.bankaccount.model.Card;
 import com.nttdata.bankaccount.repository.ICardRepository;
 import com.nttdata.bankaccount.service.ICardService;
-import com.nttdata.bankaccount.enums.RestMethod;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +28,8 @@ public class CardServiceImpl implements ICardService {
 
     private final ICardRepository cardRepository;
 
+    private final CardMapper cardMapper;
+
     /**
      * This method returns a list of cards
      *
@@ -46,13 +47,13 @@ public class CardServiceImpl implements ICardService {
     /**
      * This method creates a card
      *
-     * @param cardRequest request to create new card
+     * @param request request to create new card
      * @return card created
      */
     @Override
-    public Mono<Card> create(CardRequest cardRequest) {
-        Card card = CardConvertion.toModel(cardRequest, RestMethod.POST);
-        return cardRepository.save(card)
+    public Mono<Card> create(CardRequest request) {
+        return cardMapper.toPostModel(request)
+                .flatMap(cardRepository::save)
                 .onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][create]" + e);
                     return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request" + e));
@@ -64,19 +65,17 @@ public class CardServiceImpl implements ICardService {
     /**
      * This method updates a card
      *
-     * @param id          card id to update
-     * @param cardRequest request to update card
+     * @param id      card id to update
+     * @param request request to update card
      * @return card updated
      */
     @Override
-    public Mono<Card> update(String id, Card cardRequest) {
+    public Mono<Card> update(String id, CardRequest request) {
         return findAll().filter(c -> c.getId().equals(id))
                 .single()
-                .flatMap(c -> {
-                    c.setName(cardRequest.getName());
-                    c.setUpdatedAt(cardRequest.getUpdatedAt());
-                    return cardRepository.save(c);
-                }).onErrorResume(e -> {
+                .flatMap(c -> cardMapper.toPutModel(c, request)
+                        .flatMap(cardRepository::save))
+                .onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][update]" + e.getMessage());
                     return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request" + e));
                 }).switchIfEmpty(
@@ -91,7 +90,7 @@ public class CardServiceImpl implements ICardService {
      * @return void
      */
     @Override
-    public Mono<Void> delete(String id) {
+    public Mono<Void> deleteById(String id) {
         return cardRepository.deleteById(id)
                 .onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][delete]" + e);

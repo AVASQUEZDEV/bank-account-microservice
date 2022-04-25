@@ -1,5 +1,8 @@
 package com.nttdata.bankaccount.controller;
 
+import com.nttdata.bankaccount.dto.mapper.BankAccountMapper;
+import com.nttdata.bankaccount.dto.request.BankAccountRequest;
+import com.nttdata.bankaccount.dto.response.BankAccountResponse;
 import com.nttdata.bankaccount.model.BankAccount;
 import com.nttdata.bankaccount.service.IBankAccountService;
 import lombok.RequiredArgsConstructor;
@@ -25,30 +28,32 @@ public class BankAccountRestController {
 
     private final IBankAccountService bankAccountService;
 
+    private final BankAccountMapper bankAccountMapper;
+
     /**
      * @return list of bank accounts
      */
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public Flux<BankAccount> getAll() {
-        return bankAccountService.findAll();
+    public Flux<BankAccountResponse> getAll() {
+        return bankAccountMapper.toFluxResponse(bankAccountService.findAll());
     }
 
     /**
-     * @param bankAccountRequest request to create bank account
+     * @param request request to create bank account
      * @return bank account created
      */
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<BankAccount> create(@RequestBody BankAccount bankAccountRequest) {
-        return bankAccountService.create(bankAccountRequest);
+    public Mono<BankAccountResponse> create(@RequestBody BankAccountRequest request) {
+        return bankAccountMapper.toMonoResponse(bankAccountService.create(request));
     }
 
     /**
-     * @param id                 bank account id to update
-     * @param bankAccountRequest request for update bank account
+     * @param id      bank account id to update
+     * @param request request for update bank account
      * @return bank account updated
      */
     @ResponseStatus(HttpStatus.CREATED)
@@ -56,10 +61,10 @@ public class BankAccountRestController {
             value = "/{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<BankAccount> update(
+    public Mono<BankAccountResponse> update(
             @PathVariable(name = "id") String id,
-            @RequestBody BankAccount bankAccountRequest) {
-        return bankAccountService.update(id, bankAccountRequest);
+            @RequestBody BankAccountRequest request) {
+        return bankAccountMapper.toMonoResponse(bankAccountService.update(id, request));
     }
 
     /**
@@ -68,8 +73,8 @@ public class BankAccountRestController {
      */
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
-    public Mono<Void> delete(@PathVariable(name = "id") String id) {
-        return bankAccountService.delete(id);
+    public Mono<Void> deleteById(@PathVariable(name = "id") String id) {
+        return bankAccountService.deleteById(id);
     }
 
 }

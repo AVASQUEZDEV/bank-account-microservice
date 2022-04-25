@@ -7,20 +7,23 @@ import lombok.Data;
 import java.util.Date;
 
 /**
- * This class defines the response of card
+ * This class defines the response of bank account charge
  *
  * @author Alcibar Vasquez
  * @version 1.0
  */
 @AllArgsConstructor
 @Data
-public class CardResponse {
+public class BankAccountChargeResponse {
 
     @JsonProperty(value = "id")
     private String id;
 
-    @JsonProperty(value = "name")
-    private String name;
+    @JsonProperty(value = "commission")
+    private Float commission;
+
+    @JsonProperty(value = "movementsQuantity")
+    private Long movementsQuantity;
 
     @JsonProperty(value = "createdAt")
     private Date createdAt;
@@ -29,5 +32,3 @@ public class CardResponse {
     private Date updatedAt;
 
 }
-
-
