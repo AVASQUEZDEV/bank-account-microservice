@@ -14,7 +14,7 @@ import java.util.Date;
  */
 @AllArgsConstructor
 @Data
-public class CardResponse {
+public class CardTypeResponse {
 
     @JsonProperty(value = "id")
     private String id;

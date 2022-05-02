@@ -3,6 +3,7 @@ package com.nttdata.bankaccount.controller;
 import com.nttdata.bankaccount.dto.mapper.BankAccountMapper;
 import com.nttdata.bankaccount.dto.request.BankAccountRequest;
 import com.nttdata.bankaccount.dto.response.BankAccountResponse;
+import com.nttdata.bankaccount.enums.TransactionType;
 import com.nttdata.bankaccount.model.BankAccount;
 import com.nttdata.bankaccount.service.IBankAccountService;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +49,16 @@ public class BankAccountRestController {
         return bankAccountMapper.toMonoResponse(bankAccountService.findById(id));
     }
 
+    /***
+     * @param id request
+     * @return bank account
+     */
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/cci/{cci}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Mono<BankAccountResponse> getByCCI(@PathVariable(name = "cci") String cci) {
+        return bankAccountMapper.toMonoResponse(bankAccountService.findByCCI(cci));
+    }
+
     /**
      * @param request request to create bank account
      * @return bank account created
@@ -72,8 +83,9 @@ public class BankAccountRestController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<BankAccountResponse> update(
             @PathVariable(name = "id") String id,
-            @RequestBody BankAccountRequest request) {
-        return bankAccountMapper.toMonoResponse(bankAccountService.update(id, request));
+            @RequestBody BankAccountRequest request,
+            @RequestParam(name = "transactionType")TransactionType transactionType) {
+        return bankAccountMapper.toMonoResponse(bankAccountService.update(id, request, transactionType));
     }
 
     /**

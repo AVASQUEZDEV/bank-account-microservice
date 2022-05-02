@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -21,8 +20,8 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "cards")
-public class Card {
+@Document(collection = "card_types")
+public class CardType {
 
     @Id
     private String id;
@@ -36,7 +35,7 @@ public class Card {
     @Field(name = "updated_at")
     private Date updatedAt;
 
-    public Card(String name, Date createdAt, Date updatedAt) {
+    public CardType(String name, Date createdAt, Date updatedAt) {
         this.name = name;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;

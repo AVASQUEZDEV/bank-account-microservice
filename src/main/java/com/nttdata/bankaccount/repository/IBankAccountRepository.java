@@ -3,6 +3,7 @@ package com.nttdata.bankaccount.repository;
 import com.nttdata.bankaccount.model.BankAccount;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Mono;
 
 /**
  * This interface defines the repository for bank accounts
@@ -12,4 +13,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface IBankAccountRepository extends ReactiveMongoRepository<BankAccount, String> {
+
+    Mono<BankAccount> findByCci(String cci);
+
 }

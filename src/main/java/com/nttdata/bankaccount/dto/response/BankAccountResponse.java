@@ -28,6 +28,9 @@ public class BankAccountResponse {
     @JsonProperty(value = "expirationDate")
     private Date expirationDate;
 
+    @JsonProperty(value = "cci")
+    private String cci;
+
     @JsonProperty(value = "balance")
     private Float balance;
 

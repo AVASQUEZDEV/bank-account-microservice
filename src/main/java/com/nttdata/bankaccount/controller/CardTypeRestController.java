@@ -1,11 +1,9 @@
 package com.nttdata.bankaccount.controller;
 
-import com.nttdata.bankaccount.dto.mapper.CardMapper;
-import com.nttdata.bankaccount.dto.request.CardRequest;
-import com.nttdata.bankaccount.dto.response.ApiResponse;
-import com.nttdata.bankaccount.dto.response.CardResponse;
-import com.nttdata.bankaccount.model.Card;
-import com.nttdata.bankaccount.service.ICardService;
+import com.nttdata.bankaccount.dto.mapper.CardTypeMapper;
+import com.nttdata.bankaccount.dto.request.CardTypeRequest;
+import com.nttdata.bankaccount.dto.response.CardTypeResponse;
+import com.nttdata.bankaccount.service.ICardTypeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,19 +20,19 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/cards")
-public class CardRestController {
+public class CardTypeRestController {
 
-    private final ICardService cardService;
+    private final ICardTypeService cardService;
 
-    private final CardMapper cardMapper;
+    private final CardTypeMapper cardTypeMapper;
 
     /**
      * @return list of cards
      */
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public Flux<CardResponse> getAll() {
-        return cardMapper.toFluxResponse(cardService.findAll());
+    public Flux<CardTypeResponse> getAll() {
+        return cardTypeMapper.toFluxResponse(cardService.findAll());
     }
 
     /**
@@ -42,20 +40,20 @@ public class CardRestController {
      */
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<CardResponse> getById(@PathVariable(name = "id") String id) {
-        return cardMapper.toMonoResponse(cardService.findById(id));
+    public Mono<CardTypeResponse> getById(@PathVariable(name = "id") String id) {
+        return cardTypeMapper.toMonoResponse(cardService.findById(id));
     }
 
     /**
-     * @param cardRequest request to create card
+     * @param cardTypeRequest request to create card
      * @return card created
      */
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<CardResponse> create(@RequestBody CardRequest cardRequest) {
-        return cardMapper.toMonoResponse(cardService.create(cardRequest));
+    public Mono<CardTypeResponse> create(@RequestBody CardTypeRequest cardTypeRequest) {
+        return cardTypeMapper.toMonoResponse(cardService.create(cardTypeRequest));
     }
 
     /**
@@ -68,9 +66,9 @@ public class CardRestController {
             value = "/{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<CardResponse> update(@PathVariable(name = "id") String id,
-                                     @RequestBody CardRequest request) {
-        return cardMapper.toMonoResponse(cardService.update(id, request));
+    public Mono<CardTypeResponse> update(@PathVariable(name = "id") String id,
+                                         @RequestBody CardTypeRequest request) {
+        return cardTypeMapper.toMonoResponse(cardService.update(id, request));
     }
 
     /**

@@ -10,7 +10,7 @@ import lombok.Data;
  * @version 1.0
  */
 @Data
-public class CardRequest {
+public class CardTypeRequest {
 
     @JsonProperty(value = "name")
     private String name;

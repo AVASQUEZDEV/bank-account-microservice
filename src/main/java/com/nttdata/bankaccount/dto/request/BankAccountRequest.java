@@ -19,6 +19,8 @@ public class BankAccountRequest {
 
     private Date expirationDate;
 
+    private String cci;
+
     private Float balance;
 
 }

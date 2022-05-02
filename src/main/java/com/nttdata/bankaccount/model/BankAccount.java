@@ -36,6 +36,9 @@ public class BankAccount {
     @Field(name = "expiration_date", write = Field.Write.NON_NULL)
     private Date expirationDate;
 
+    @Field(name = "account_number", write = Field.Write.NON_NULL)
+    private String cci;
+
     @Field(name = "balance", write = Field.Write.NON_NULL)
     private Float balance;
 
@@ -47,10 +50,12 @@ public class BankAccount {
     @Field(name = "updated_at")
     private Date updatedAt;
 
-    public BankAccount(String cardNumber, Long securityCode, Date expirationDate, Float balance, Date createdAt, Date updatedAt) {
+    public BankAccount(String cardNumber, Long securityCode, Date expirationDate,
+                       String cci, Float balance, Date createdAt, Date updatedAt) {
         this.cardNumber = cardNumber;
         this.securityCode = securityCode;
         this.expirationDate = expirationDate;
+        this.cci = cci;
         this.balance = balance;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;

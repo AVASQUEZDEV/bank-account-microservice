@@ -2,19 +2,17 @@ package com.nttdata.bankaccount.service.impl;
 
 import com.nttdata.bankaccount.dto.mapper.BankAccountMapper;
 import com.nttdata.bankaccount.dto.request.BankAccountRequest;
+import com.nttdata.bankaccount.enums.TransactionType;
+import com.nttdata.bankaccount.exceptions.CustomException;
 import com.nttdata.bankaccount.model.BankAccount;
 import com.nttdata.bankaccount.repository.IBankAccountRepository;
 import com.nttdata.bankaccount.service.IBankAccountService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.Optional;
 
 /**
  * This class defines the service of bank accounts
@@ -42,7 +40,7 @@ public class BankAccountServiceImpl implements IBankAccountService {
         return bankAccountRepository.findAll()
                 .onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][findAll]" + e);
-                    return Mono.error(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "" + e));
+                    return Mono.error(CustomException.internalServerError("Internal Server Error:" + e));
                 });
     }
 
@@ -57,8 +55,21 @@ public class BankAccountServiceImpl implements IBankAccountService {
         return bankAccountRepository.findById(id)
                 .onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][findById]" + e.getMessage());
-                    return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "" + e));
-                }).switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
+                    return Mono.error(CustomException.badRequest("The request is invalid:" + e));
+                }).switchIfEmpty(Mono.error(CustomException.notFound("Bank account not found")));
+    }
+
+    /**
+     * @param cci request
+     * @return bank account
+     */
+    @Override
+    public Mono<BankAccount> findByCCI(String cci) {
+        return bankAccountRepository.findByCci(cci)
+                .onErrorResume(e -> {
+                    LOGGER.error("[" + getClass().getName() + "][findById]" + e.getMessage());
+                    return Mono.error(CustomException.badRequest("The request is invalid:" + e));
+                }).switchIfEmpty(Mono.error(CustomException.notFound("Bank account not found")));
     }
 
     /**
@@ -73,8 +84,8 @@ public class BankAccountServiceImpl implements IBankAccountService {
                 .flatMap(bankAccountRepository::save)
                 .onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][create]" + e);
-                    return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request" + e));
-                }).switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
+                    return Mono.error(CustomException.notFound("The request is invalid:" + e));
+                }).switchIfEmpty(Mono.error(CustomException.notFound("Bank account not created")));
     }
 
     /**
@@ -85,14 +96,23 @@ public class BankAccountServiceImpl implements IBankAccountService {
      * @return bank account updated
      */
     @Override
-    public Mono<BankAccount> update(String id, BankAccountRequest request) {
+    public Mono<BankAccount> update(String id, BankAccountRequest request, TransactionType transactionType) {
         return findById(id)
-                .flatMap(ba -> bankAccountMapper.toPutModel(ba, request)
-                        .flatMap(bankAccountRepository::save)
-                ).onErrorResume(e -> {
+                .flatMap(ba -> {
+                    // Validate transaction type to update balance
+                    Float currentBalance = ba.getBalance();
+                    Float newBalance = request.getBalance();
+                    if (transactionType.equals(TransactionType.DEPOSIT)) {
+                        request.setBalance(currentBalance + newBalance);
+                    } else if (transactionType.equals(TransactionType.WITHDRAWAL)) {
+                        request.setBalance(currentBalance - newBalance);
+                    }
+                    return bankAccountMapper.toPutModel(ba, request)
+                            .flatMap(bankAccountRepository::save);
+                }).onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][update]" + e);
-                    return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "" + e));
-                }).switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
+                    return Mono.error(CustomException.badRequest("The request is invalid" + e));
+                }).switchIfEmpty(Mono.error(CustomException.notFound("Bank account not found")));
     }
 
     /**
@@ -106,7 +126,7 @@ public class BankAccountServiceImpl implements IBankAccountService {
         return bankAccountRepository.deleteById(id)
                 .onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][deleteById]" + e);
-                    return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "" + e));
+                    return Mono.error(CustomException.badRequest("The request is invalid" + e));
                 });
     }
 }
