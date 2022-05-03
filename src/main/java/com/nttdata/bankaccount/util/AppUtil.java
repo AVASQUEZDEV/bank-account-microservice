@@ -28,4 +28,14 @@ public class AppUtil {
         return simpleDateFormat.parse(newDate);
     }
 
+    public static String checkAccountTypeName(String requestName) {
+        String accountTypeName = Constant.FIXED_TERM_ACCOUNT;
+        if (requestName.matches("(.*)ahorros(.*)")) {
+            accountTypeName = Constant.SAVING_ACCOUNT;
+        } else if (requestName.matches("(.*)corriente(.*)")) {
+            accountTypeName = Constant.CURRENT_ACCOUNT;
+        }
+        return accountTypeName;
+    }
+
 }

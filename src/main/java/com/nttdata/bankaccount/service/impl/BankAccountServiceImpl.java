@@ -2,11 +2,17 @@ package com.nttdata.bankaccount.service.impl;
 
 import com.nttdata.bankaccount.dto.mapper.BankAccountMapper;
 import com.nttdata.bankaccount.dto.request.BankAccountRequest;
+import com.nttdata.bankaccount.enums.PlanType;
 import com.nttdata.bankaccount.enums.TransactionType;
 import com.nttdata.bankaccount.exceptions.CustomException;
 import com.nttdata.bankaccount.model.BankAccount;
+import com.nttdata.bankaccount.proxy.client.ClientProxy;
+import com.nttdata.bankaccount.repository.IAccountTypeRepository;
 import com.nttdata.bankaccount.repository.IBankAccountRepository;
+import com.nttdata.bankaccount.service.IAccountTypeService;
 import com.nttdata.bankaccount.service.IBankAccountService;
+import com.nttdata.bankaccount.util.AppUtil;
+import com.nttdata.bankaccount.util.Constant;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +35,11 @@ public class BankAccountServiceImpl implements IBankAccountService {
     private final IBankAccountRepository bankAccountRepository;
 
     private final BankAccountMapper bankAccountMapper;
+
+    private final IAccountTypeRepository accountTypeRepository;
+
+    private final ClientProxy clientProxy;
+
 
     /**
      * This method returns a list of bank accounts
@@ -80,9 +91,38 @@ public class BankAccountServiceImpl implements IBankAccountService {
      */
     @Override
     public Mono<BankAccount> create(BankAccountRequest request) {
-        return bankAccountMapper.toPostModel(request)
-                .flatMap(bankAccountRepository::save)
-                .onErrorResume(e -> {
+        String accountTypeName = AppUtil.checkAccountTypeName(request.getAccountType().getName());
+        return clientProxy.getClientById(request.getClientId())
+                .flatMap(cli -> bankAccountRepository.findByCci(request.getCci())
+                        .flatMap(ba -> {
+                            String planType = cli.getPlan().getName();
+                            if (planType.equals(PlanType.Personal.toString())) { //plan personal
+                                return Mono.error(CustomException
+                                        .badRequest("The personal plan already has a account: " + ba.getAccountType().getName()));
+                            } else { // plan empresarial
+                                if (accountTypeName.equals(Constant.CURRENT_ACCOUNT)) {
+                                    return accountTypeRepository.findByName(accountTypeName)
+                                            .flatMap(at -> bankAccountMapper.toPostModel(request)
+                                                    .flatMap(bac -> {
+                                                        bac.setAccountType(at);
+                                                        return bankAccountRepository.save(bac);
+                                                    }));
+                                } else {
+                                    return Mono.error(CustomException
+                                            .badRequest("The business plan can only have current accounts"));
+                                }
+                            }
+                        }).switchIfEmpty(accountTypeRepository.findByName(accountTypeName)
+                                .flatMap(at -> bankAccountMapper.toPostModel(request)
+                                        .flatMap(bac -> {
+                                            bac.setAccountType(at);
+                                            return bankAccountRepository.save(bac);
+                                        }))
+                        ).onErrorResume(e -> {
+                            LOGGER.error("[" + getClass().getName() + "][create][findByCci]" + e);
+                            return Mono.error(CustomException.notFound("The request is invalid:" + e));
+                        })
+                ).onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][create]" + e);
                     return Mono.error(CustomException.notFound("The request is invalid:" + e));
                 }).switchIfEmpty(Mono.error(CustomException.notFound("Bank account not created")));

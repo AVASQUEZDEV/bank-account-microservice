@@ -6,3 +6,10 @@ spring:
       uri: http://localhost:8090
       username: nttdata
       password: nttd4t4
+microservices:
+  client:
+    base-url: http://localhost:8083
+    base-path: /api/v1
+    end-point:
+      client: ${microservices.client.base-path}/clients
+      plan: ${microservices.client.base-path}/plans

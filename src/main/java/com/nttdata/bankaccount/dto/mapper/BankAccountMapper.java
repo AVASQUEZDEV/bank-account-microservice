@@ -1,9 +1,11 @@
 package com.nttdata.bankaccount.dto.mapper;
 
 import com.nttdata.bankaccount.dto.request.BankAccountRequest;
+import com.nttdata.bankaccount.dto.response.AccountTypeResponse;
 import com.nttdata.bankaccount.dto.response.BankAccountResponse;
 import com.nttdata.bankaccount.model.BankAccount;
 import com.nttdata.bankaccount.util.AppUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -16,8 +18,11 @@ import java.util.Date;
  * @author Alcibar Vasquez
  * @version 1.0
  */
+@RequiredArgsConstructor
 @Service
 public class BankAccountMapper {
+
+    private final AccountTypeMapper accountTypeMapper;
 
     /**
      * This method convert request to model
@@ -28,6 +33,7 @@ public class BankAccountMapper {
     public Mono<BankAccount> toPostModel(BankAccountRequest request) {
         return Mono.just(
                 new BankAccount(
+                        request.getClientId(),
                         request.getCardNumber(),
                         request.getSecurityCode(),
                         request.getExpirationDate(),
@@ -59,16 +65,20 @@ public class BankAccountMapper {
      * @return converted response
      */
     public Mono<BankAccountResponse> toMonoResponse(Mono<BankAccount> bankAccount) {
-        return bankAccount.flatMap(ba -> Mono.just(
-                new BankAccountResponse(
-                        ba.getId(),
-                        ba.getCardNumber(),
-                        ba.getSecurityCode(),
-                        ba.getExpirationDate(),
-                        ba.getCci(),
-                        ba.getBalance(),
-                        ba.getCreatedAt(),
-                        ba.getCreatedAt()))
+        return bankAccount.flatMap(ba -> accountTypeMapper
+                .toMonoResponse(Mono.just(ba.getAccountType()))
+                .flatMap(at -> Mono.just(
+                        new BankAccountResponse(
+                                ba.getId(),
+                                ba.getClientId(),
+                                ba.getCardNumber(),
+                                ba.getSecurityCode(),
+                                ba.getExpirationDate(),
+                                ba.getCci(),
+                                ba.getBalance(),
+                                ba.getCreatedAt(),
+                                ba.getCreatedAt(), at))
+                )
         );
     }
 

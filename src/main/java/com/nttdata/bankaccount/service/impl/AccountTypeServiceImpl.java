@@ -1,11 +1,11 @@
 package com.nttdata.bankaccount.service.impl;
 
-import com.nttdata.bankaccount.dto.mapper.BankAccountChargeMapper;
-import com.nttdata.bankaccount.dto.request.BankAccountChargeRequest;
+import com.nttdata.bankaccount.dto.mapper.AccountTypeMapper;
+import com.nttdata.bankaccount.dto.request.AccountTypeRequest;
 import com.nttdata.bankaccount.exceptions.CustomException;
-import com.nttdata.bankaccount.model.BankAccountCharge;
-import com.nttdata.bankaccount.repository.IBankAccountChargeRepository;
-import com.nttdata.bankaccount.service.IBankAccountChargeService;
+import com.nttdata.bankaccount.model.AccountType;
+import com.nttdata.bankaccount.repository.IAccountTypeRepository;
+import com.nttdata.bankaccount.service.IAccountTypeService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,13 +21,13 @@ import reactor.core.publisher.Mono;
  */
 @RequiredArgsConstructor
 @Service
-public class BankAccountChargeServiceImpl implements IBankAccountChargeService {
+public class AccountTypeServiceImpl implements IAccountTypeService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BankAccountChargeServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccountTypeServiceImpl.class);
 
-    private final IBankAccountChargeRepository bankAccountChargeRepository;
+    private final IAccountTypeRepository IAccountTypeRepository;
 
-    private final BankAccountChargeMapper bankAccountChargeMapper;
+    private final AccountTypeMapper accountTypeMapper;
 
     /**
      * This method returns a list of bank accounts charges
@@ -35,8 +35,8 @@ public class BankAccountChargeServiceImpl implements IBankAccountChargeService {
      * @return ank account charges list
      */
     @Override
-    public Flux<BankAccountCharge> findAll() {
-        return bankAccountChargeRepository.findAll().onErrorResume(e -> {
+    public Flux<AccountType> findAll() {
+        return IAccountTypeRepository.findAll().onErrorResume(e -> {
             LOGGER.error("[" + getClass().getName() + "][findAll]" + e);
             return Mono.error(CustomException.internalServerError("Internal Server Error:" + e));
         });
@@ -49,8 +49,8 @@ public class BankAccountChargeServiceImpl implements IBankAccountChargeService {
      * @return bank account charge
      */
     @Override
-    public Mono<BankAccountCharge> findById(String id) {
-        return bankAccountChargeRepository.findById(id)
+    public Mono<AccountType> findById(String id) {
+        return IAccountTypeRepository.findById(id)
                 .onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][findById]" + e.getMessage());
                     return Mono.error(CustomException.badRequest("The request is invalid:" + e));
@@ -64,9 +64,9 @@ public class BankAccountChargeServiceImpl implements IBankAccountChargeService {
      * @return bank account charges created
      */
     @Override
-    public Mono<BankAccountCharge> create(BankAccountChargeRequest request) {
-        return bankAccountChargeMapper.toPostModel(request)
-                .flatMap(bankAccountChargeRepository::save)
+    public Mono<AccountType> create(AccountTypeRequest request) {
+        return accountTypeMapper.toPostModel(request)
+                .flatMap(IAccountTypeRepository::save)
                 .onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][create]" + e);
                     return Mono.error(CustomException.badRequest("The request is invalid:" + e));
@@ -81,10 +81,10 @@ public class BankAccountChargeServiceImpl implements IBankAccountChargeService {
      * @return bank account charge updated
      */
     @Override
-    public Mono<BankAccountCharge> update(String id, BankAccountChargeRequest request) {
+    public Mono<AccountType> update(String id, AccountTypeRequest request) {
         return findById(id)
-                .flatMap(bac -> bankAccountChargeMapper.toPutModel(bac, request)
-                        .flatMap(bankAccountChargeRepository::save))
+                .flatMap(bac -> accountTypeMapper.toPutModel(bac, request)
+                        .flatMap(IAccountTypeRepository::save))
                 .onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][update]" + e);
                     return Mono.error(CustomException.badRequest("The request is invalid:" + e));
@@ -99,7 +99,7 @@ public class BankAccountChargeServiceImpl implements IBankAccountChargeService {
      */
     @Override
     public Mono<Void> deleteById(String id) {
-        return bankAccountChargeRepository.deleteById(id).onErrorResume(e -> {
+        return IAccountTypeRepository.deleteById(id).onErrorResume(e -> {
             LOGGER.error("[" + getClass().getName() + "][delete]" + e);
             return Mono.error(CustomException.badRequest("The request is invalid:" + e));
         });

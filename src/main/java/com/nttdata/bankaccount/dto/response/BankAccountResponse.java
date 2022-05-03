@@ -19,6 +19,9 @@ public class BankAccountResponse {
     @JsonProperty(value = "id")
     private String id;
 
+    @JsonProperty(value = "clientId")
+    private String clientId;
+
     @JsonProperty(value = "cardNumber")
     private String cardNumber;
 
@@ -39,5 +42,8 @@ public class BankAccountResponse {
 
     @JsonProperty(value = "updatedAt")
     private Date updatedAt;
+
+    @JsonProperty(value = "accountType")
+    private AccountTypeResponse accountType;
 
 }

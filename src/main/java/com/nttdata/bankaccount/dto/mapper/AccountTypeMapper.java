@@ -1,8 +1,8 @@
 package com.nttdata.bankaccount.dto.mapper;
 
-import com.nttdata.bankaccount.dto.request.BankAccountChargeRequest;
-import com.nttdata.bankaccount.dto.response.BankAccountChargeResponse;
-import com.nttdata.bankaccount.model.BankAccountCharge;
+import com.nttdata.bankaccount.dto.request.AccountTypeRequest;
+import com.nttdata.bankaccount.dto.response.AccountTypeResponse;
+import com.nttdata.bankaccount.model.AccountType;
 import com.nttdata.bankaccount.util.AppUtil;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -17,7 +17,7 @@ import java.util.Date;
  * @version 1.0
  */
 @Service
-public class BankAccountChargeMapper {
+public class AccountTypeMapper {
 
     /**
      * This method convert request to model
@@ -25,9 +25,10 @@ public class BankAccountChargeMapper {
      * @param request request of bankAccountCharge
      * @return bankAccountCharge model
      */
-    public Mono<BankAccountCharge> toPostModel(BankAccountChargeRequest request) {
+    public Mono<AccountType> toPostModel(AccountTypeRequest request) {
         return Mono.just(
-                new BankAccountCharge(
+                new AccountType(
+                        request.getName(),
                         request.getCommission(),
                         request.getMovementsQuantity(),
                         AppUtil.dateFormat(new Date()),
@@ -39,15 +40,15 @@ public class BankAccountChargeMapper {
     /**
      * This method convert request to model
      *
-     * @param bankAccountCharge entity
-     * @param request           bankAccountCharge request
-     * @return bankAccountCharge model
+     * @param accountType entity
+     * @param request           accountType request
+     * @return accountType model
      */
-    public Mono<BankAccountCharge> toPutModel(BankAccountCharge bankAccountCharge, BankAccountChargeRequest request) {
-        bankAccountCharge.setCommission(request.getCommission());
-        bankAccountCharge.setMovementsQuantity(request.getMovementsQuantity());
-        bankAccountCharge.setUpdatedAt(AppUtil.dateFormat(new Date()));
-        return Mono.just(bankAccountCharge);
+    public Mono<AccountType> toPutModel(AccountType accountType, AccountTypeRequest request) {
+        accountType.setCommission(request.getCommission());
+        accountType.setMovementsQuantity(request.getMovementsQuantity());
+        accountType.setUpdatedAt(AppUtil.dateFormat(new Date()));
+        return Mono.just(accountType);
     }
 
     /**
@@ -56,12 +57,14 @@ public class BankAccountChargeMapper {
      * @param bankAccountCharge entity
      * @return converted response
      */
-    public Mono<BankAccountChargeResponse> toMonoResponse(Mono<BankAccountCharge> bankAccountCharge) {
+    public Mono<AccountTypeResponse> toMonoResponse(Mono<AccountType> bankAccountCharge) {
         return bankAccountCharge.flatMap(bac -> Mono.just(
-                new BankAccountChargeResponse(
+                new AccountTypeResponse(
                         bac.getId(),
+                        bac.getName(),
                         bac.getCommission(),
                         bac.getMovementsQuantity(),
+                        bac.getFrequency(),
                         bac.getCreatedAt(),
                         bac.getCreatedAt()))
         );
@@ -73,7 +76,7 @@ public class BankAccountChargeMapper {
      * @param bankAccountCharges bankAccountCharges list
      * @return converted response
      */
-    public Flux<BankAccountChargeResponse> toFluxResponse(Flux<BankAccountCharge> bankAccountCharges) {
+    public Flux<AccountTypeResponse> toFluxResponse(Flux<AccountType> bankAccountCharges) {
         return bankAccountCharges.flatMap(bac -> toMonoResponse(Mono.just(bac)));
     }
 

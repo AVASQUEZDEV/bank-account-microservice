@@ -1,5 +1,6 @@
 package com.nttdata.bankaccount.dto.request;
 
+import com.nttdata.bankaccount.model.AccountType;
 import lombok.Data;
 
 import java.util.Date;
@@ -13,6 +14,8 @@ import java.util.Date;
 @Data
 public class BankAccountRequest {
 
+    private String clientId;
+
     private String cardNumber;
 
     private Long securityCode;
@@ -22,5 +25,7 @@ public class BankAccountRequest {
     private String cci;
 
     private Float balance;
+
+    private AccountTypeRequest accountType;
 
 }

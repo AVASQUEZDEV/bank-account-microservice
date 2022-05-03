@@ -21,27 +21,34 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "bank_account_charges")
-public class BankAccountCharge {
+@Document(collection = "account_types")
+public class AccountType {
 
     @Id
     private String id;
+
+    @Field(name = "name")
+    private String name;
 
     @Field(name = "commission")
     private Float commission;
 
     @Field(name = "movements_quantity")
-    private Long movementsQuantity;
+    private String movementsQuantity;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @Field(name = "frequency")
+    private String frequency = "Mensual";
+
     @Field(name = "created_at")
     private Date createdAt;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Field(name = "updated_at")
     private Date updatedAt;
 
-    public BankAccountCharge(Float commission, Long movementsQuantity, Date createdAt, Date updatedAt) {
+    public AccountType(String name, Float commission,
+                       String movementsQuantity, Date createdAt,
+                       Date updatedAt) {
+        this.name = name;
         this.commission = commission;
         this.movementsQuantity = movementsQuantity;
         this.createdAt = createdAt;

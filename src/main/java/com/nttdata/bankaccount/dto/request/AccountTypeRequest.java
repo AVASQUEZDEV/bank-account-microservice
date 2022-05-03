@@ -9,10 +9,12 @@ import lombok.Data;
  * @version 1.0
  */
 @Data
-public class BankAccountChargeRequest {
+public class AccountTypeRequest {
+
+    private String name;
 
     private Float commission;
 
-    private Long movementsQuantity;
+    private String movementsQuantity;
 
 }

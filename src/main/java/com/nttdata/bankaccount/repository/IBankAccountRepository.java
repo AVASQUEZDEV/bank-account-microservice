@@ -16,4 +16,6 @@ public interface IBankAccountRepository extends ReactiveMongoRepository<BankAcco
 
     Mono<BankAccount> findByCci(String cci);
 
+    Mono<BankAccount> findByClientId(String clientId);
+
 }

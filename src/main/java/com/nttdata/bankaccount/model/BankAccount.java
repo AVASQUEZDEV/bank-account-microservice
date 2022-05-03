@@ -27,6 +27,9 @@ public class BankAccount {
     @Id
     private String id;
 
+    @Field(name = "client_id", write = Field.Write.NON_NULL)
+    private String clientId;
+
     @Field(name = "card_number", write = Field.Write.NON_NULL)
     private String cardNumber;
 
@@ -42,16 +45,18 @@ public class BankAccount {
     @Field(name = "balance", write = Field.Write.NON_NULL)
     private Float balance;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Field(name = "created_at")
     private Date createdAt;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Field(name = "updated_at")
     private Date updatedAt;
 
-    public BankAccount(String cardNumber, Long securityCode, Date expirationDate,
+    @Field(name = "account_type")
+    private AccountType accountType;
+
+    public BankAccount(String clientId, String cardNumber, Long securityCode, Date expirationDate,
                        String cci, Float balance, Date createdAt, Date updatedAt) {
+        this.clientId = clientId;
         this.cardNumber = cardNumber;
         this.securityCode = securityCode;
         this.expirationDate = expirationDate;
