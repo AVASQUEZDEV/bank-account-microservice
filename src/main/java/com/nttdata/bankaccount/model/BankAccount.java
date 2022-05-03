@@ -39,7 +39,7 @@ public class BankAccount {
     @Field(name = "expiration_date", write = Field.Write.NON_NULL)
     private Date expirationDate;
 
-    @Field(name = "account_number", write = Field.Write.NON_NULL)
+    @Field(name = "cci", write = Field.Write.NON_NULL)
     private String cci;
 
     @Field(name = "balance", write = Field.Write.NON_NULL)

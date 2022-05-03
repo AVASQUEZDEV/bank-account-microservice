@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -91,15 +92,30 @@ public class BankAccountServiceImpl implements IBankAccountService {
      */
     @Override
     public Mono<BankAccount> create(BankAccountRequest request) {
+        LOGGER.info("[BankAccountServiceImpl][create][request]" + request.toString());
         String accountTypeName = AppUtil.checkAccountTypeName(request.getAccountType().getName());
         return clientProxy.getClientById(request.getClientId())
-                .flatMap(cli -> bankAccountRepository.findByCci(request.getCci())
+                .doOnNext(cli -> LOGGER.info("[BankAccountServiceImpl][getClientById]" + cli.toString()))
+                .flatMap(cli -> bankAccountRepository.findByClientId(request.getClientId())
+                        .filter(c -> c.getAccountType().getName().equals(accountTypeName))
+                        .single()
+                        .doOnNext(ba -> LOGGER.info("[BankAccountServiceImpl][findByClientId]" + ba.toString()))
                         .flatMap(ba -> {
+                            LOGGER.info("[BankAccountServiceImpl][create][findByCCi]" + ba.toString());
                             String planType = cli.getPlan().getName();
                             if (planType.equals(PlanType.Personal.toString())) { //plan personal
-                                return Mono.error(CustomException
-                                        .badRequest("The personal plan already has a account: " + ba.getAccountType().getName()));
+                                LOGGER.info("[BankAccountServiceImpl][create]" + planType);
+                                switch (ba.getAccountType().getName()) {
+                                    case Constant.SAVING_ACCOUNT:
+                                    case Constant.CURRENT_ACCOUNT:
+                                        return Mono.error(CustomException.badRequest("The personal plan already has a account:" +
+                                                ba.getAccountType().getName()));
+                                    default:
+                                        return Mono.error(CustomException.badRequest("The personal plan already has a account: " +
+                                                ba.getAccountType().getName()));
+                                }
                             } else { // plan empresarial
+                                LOGGER.info("[BankAccountServiceImpl][create]" + planType);
                                 if (accountTypeName.equals(Constant.CURRENT_ACCOUNT)) {
                                     return accountTypeRepository.findByName(accountTypeName)
                                             .flatMap(at -> bankAccountMapper.toPostModel(request)
@@ -118,13 +134,11 @@ public class BankAccountServiceImpl implements IBankAccountService {
                                             bac.setAccountType(at);
                                             return bankAccountRepository.save(bac);
                                         }))
-                        ).onErrorResume(e -> {
-                            LOGGER.error("[" + getClass().getName() + "][create][findByCci]" + e);
-                            return Mono.error(CustomException.notFound("The request is invalid:" + e));
-                        })
+                                .onErrorResume(e -> Mono.error(CustomException.badRequest("Error:" + e.getMessage())))
+                        )
                 ).onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][create]" + e);
-                    return Mono.error(CustomException.notFound("The request is invalid:" + e));
+                    return Mono.error(CustomException.badRequest("The request is invalid:" + e.getMessage()));
                 }).switchIfEmpty(Mono.error(CustomException.notFound("Bank account not created")));
     }
 
