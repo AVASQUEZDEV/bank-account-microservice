@@ -34,6 +34,7 @@ public class BankAccountMapper {
         return Mono.just(
                 new BankAccount(
                         request.getClientId(),
+                        request.getProductId(),
                         request.getCardNumber(),
                         request.getSecurityCode(),
                         request.getExpirationDate(),
@@ -65,21 +66,20 @@ public class BankAccountMapper {
      * @return converted response
      */
     public Mono<BankAccountResponse> toMonoResponse(Mono<BankAccount> bankAccount) {
-        return bankAccount.flatMap(ba -> accountTypeMapper
-                .toMonoResponse(Mono.just(ba.getAccountType()))
-                .flatMap(at -> Mono.just(
+        return bankAccount
+                .flatMap(ba -> Mono.just(
                         new BankAccountResponse(
                                 ba.getId(),
                                 ba.getClientId(),
+                                ba.getProductId(),
                                 ba.getCardNumber(),
                                 ba.getSecurityCode(),
                                 ba.getExpirationDate(),
                                 ba.getCci(),
                                 ba.getBalance(),
                                 ba.getCreatedAt(),
-                                ba.getCreatedAt(), at))
-                )
-        );
+                                ba.getCreatedAt()))
+                );
     }
 
     /**

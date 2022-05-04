@@ -30,6 +30,9 @@ public class BankAccount {
     @Field(name = "client_id", write = Field.Write.NON_NULL)
     private String clientId;
 
+    @Field(name = "productId", write = Field.Write.NON_NULL)
+    private String productId;
+
     @Field(name = "card_number", write = Field.Write.NON_NULL)
     private String cardNumber;
 
@@ -51,12 +54,10 @@ public class BankAccount {
     @Field(name = "updated_at")
     private Date updatedAt;
 
-    @Field(name = "account_type")
-    private AccountType accountType;
-
-    public BankAccount(String clientId, String cardNumber, Long securityCode, Date expirationDate,
+    public BankAccount(String clientId, String productId, String cardNumber, Long securityCode, Date expirationDate,
                        String cci, Float balance, Date createdAt, Date updatedAt) {
         this.clientId = clientId;
+        this.productId = productId;
         this.cardNumber = cardNumber;
         this.securityCode = securityCode;
         this.expirationDate = expirationDate;

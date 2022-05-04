@@ -19,4 +19,5 @@ public interface IBankAccountRepository extends ReactiveMongoRepository<BankAcco
 
     Flux<BankAccount> findByClientId(String clientId);
 
+
 }

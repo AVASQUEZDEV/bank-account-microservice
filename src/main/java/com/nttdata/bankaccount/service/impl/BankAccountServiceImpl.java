@@ -2,11 +2,14 @@ package com.nttdata.bankaccount.service.impl;
 
 import com.nttdata.bankaccount.dto.mapper.BankAccountMapper;
 import com.nttdata.bankaccount.dto.request.BankAccountRequest;
+import com.nttdata.bankaccount.dto.response.proxy.ClientResponse;
+import com.nttdata.bankaccount.dto.response.proxy.ProductResponse;
 import com.nttdata.bankaccount.enums.PlanType;
 import com.nttdata.bankaccount.enums.TransactionType;
 import com.nttdata.bankaccount.exceptions.CustomException;
 import com.nttdata.bankaccount.model.BankAccount;
 import com.nttdata.bankaccount.proxy.client.ClientProxy;
+import com.nttdata.bankaccount.proxy.product.ProductProxy;
 import com.nttdata.bankaccount.repository.IAccountTypeRepository;
 import com.nttdata.bankaccount.repository.IBankAccountRepository;
 import com.nttdata.bankaccount.service.IAccountTypeService;
@@ -37,7 +40,7 @@ public class BankAccountServiceImpl implements IBankAccountService {
 
     private final BankAccountMapper bankAccountMapper;
 
-    private final IAccountTypeRepository accountTypeRepository;
+    private final ProductProxy productProxy;
 
     private final ClientProxy clientProxy;
 
@@ -93,53 +96,46 @@ public class BankAccountServiceImpl implements IBankAccountService {
     @Override
     public Mono<BankAccount> create(BankAccountRequest request) {
         LOGGER.info("[BankAccountServiceImpl][create][request]" + request.toString());
-        String accountTypeName = AppUtil.checkAccountTypeName(request.getAccountType().getName());
-        return clientProxy.getClientById(request.getClientId())
-                .doOnNext(cli -> LOGGER.info("[BankAccountServiceImpl][getClientById]" + cli.toString()))
-                .flatMap(cli -> bankAccountRepository.findByClientId(request.getClientId())
-                        .filter(c -> c.getAccountType().getName().equals(accountTypeName))
-                        .single()
-                        .doOnNext(ba -> LOGGER.info("[BankAccountServiceImpl][findByClientId]" + ba.toString()))
+        Mono<ClientResponse> client = clientProxy.getClientById(request.getClientId());
+        Mono<ProductResponse> product = productProxy.getProductById(request.getProductId());
+        return Mono.zip(client, product)
+                .doOnNext(res -> LOGGER.info("[BankAccountServiceImpl][getProxy]" + res.toString()))
+                .flatMap(res -> bankAccountRepository.findByClientId(res.getT1().getId())
+                        //.filter(cli -> cli.getProductId().equals(res.getT2().getId()))
+                        //.singleOrEmpty()
+                        .doOnNext(ba -> LOGGER.info("[BankAccountServiceImpl][bankAccountRepository]" + ba.toString()))
                         .flatMap(ba -> {
-                            LOGGER.info("[BankAccountServiceImpl][create][findByCCi]" + ba.toString());
-                            String planType = cli.getPlan().getName();
-                            if (planType.equals(PlanType.Personal.toString())) { //plan personal
-                                LOGGER.info("[BankAccountServiceImpl][create]" + planType);
-                                switch (ba.getAccountType().getName()) {
-                                    case Constant.SAVING_ACCOUNT:
-                                    case Constant.CURRENT_ACCOUNT:
-                                        return Mono.error(CustomException.badRequest("The personal plan already has a account:" +
-                                                ba.getAccountType().getName()));
-                                    default:
-                                        return Mono.error(CustomException.badRequest("The personal plan already has a account: " +
-                                                ba.getAccountType().getName()));
+                            LOGGER.info("[BankAccountServiceImpl][create][findByCCi]" + res.toString());
+                            String planName = res.getT1().getPlan().getName();
+                            String productName = res.getT2().getName();
+                            // validate plan type if is personal or empresarial
+                            if (planName.equals(PlanType.Personal.toString())) {
+                                LOGGER.info("[BankAccountServiceImpl][create]" + planName);
+                                if(ba.getProductId().equals(res.getT2().getId())) {
+                                    return Mono.error(CustomException
+                                            .badRequest("The personal plan already has a account: " + productName));
+                                } else {
+                                    return bankAccountMapper.toPostModel(request)
+                                            .flatMap(bankAccountRepository::save);
                                 }
-                            } else { // plan empresarial
-                                LOGGER.info("[BankAccountServiceImpl][create]" + planType);
-                                if (accountTypeName.equals(Constant.CURRENT_ACCOUNT)) {
-                                    return accountTypeRepository.findByName(accountTypeName)
-                                            .flatMap(at -> bankAccountMapper.toPostModel(request)
-                                                    .flatMap(bac -> {
-                                                        bac.setAccountType(at);
-                                                        return bankAccountRepository.save(bac);
-                                                    }));
+                            } else {
+                                LOGGER.info("[BankAccountServiceImpl][create]" + planName);
+                                if (productName.equals(Constant.CURRENT_ACCOUNT)) {
+                                    return bankAccountMapper.toPostModel(request)
+                                            .flatMap(bankAccountRepository::save);
                                 } else {
                                     return Mono.error(CustomException
                                             .badRequest("The business plan can only have current accounts"));
                                 }
                             }
-                        }).switchIfEmpty(accountTypeRepository.findByName(accountTypeName)
-                                .flatMap(at -> bankAccountMapper.toPostModel(request)
-                                        .flatMap(bac -> {
-                                            bac.setAccountType(at);
-                                            return bankAccountRepository.save(bac);
-                                        }))
-                                .onErrorResume(e -> Mono.error(CustomException.badRequest("Error:" + e.getMessage())))
-                        )
+                        }).singleOrEmpty()
+                        .switchIfEmpty(bankAccountMapper.toPostModel(request)
+                                .flatMap(bankAccountRepository::save))
                 ).onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][create]" + e);
+                    e.printStackTrace();
                     return Mono.error(CustomException.badRequest("The request is invalid:" + e.getMessage()));
-                }).switchIfEmpty(Mono.error(CustomException.notFound("Bank account not created")));
+                }).switchIfEmpty(Mono.error(CustomException.notFound("Client or Product not found")));
     }
 
     /**

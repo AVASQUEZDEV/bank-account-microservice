@@ -16,6 +16,8 @@ public class BankAccountRequest {
 
     private String clientId;
 
+    private String productId;
+
     private String cardNumber;
 
     private Long securityCode;
@@ -25,7 +27,5 @@ public class BankAccountRequest {
     private String cci;
 
     private Float balance;
-
-    private AccountTypeRequest accountType;
 
 }
