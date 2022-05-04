@@ -3,6 +3,7 @@ package com.nttdata.bankaccount.service.impl;
 import com.nttdata.bankaccount.dto.mapper.BankAccountMapper;
 import com.nttdata.bankaccount.dto.request.BankAccountRequest;
 import com.nttdata.bankaccount.dto.response.proxy.ClientResponse;
+import com.nttdata.bankaccount.dto.response.proxy.CreditResponse;
 import com.nttdata.bankaccount.dto.response.proxy.ProductResponse;
 import com.nttdata.bankaccount.enums.PlanType;
 import com.nttdata.bankaccount.enums.TransactionType;
@@ -10,17 +11,14 @@ import com.nttdata.bankaccount.exceptions.CustomException;
 import com.nttdata.bankaccount.model.BankAccount;
 import com.nttdata.bankaccount.proxy.client.ClientProxy;
 import com.nttdata.bankaccount.proxy.product.ProductProxy;
-import com.nttdata.bankaccount.repository.IAccountTypeRepository;
+import com.nttdata.bankaccount.proxy.transaction.CreditProxy;
 import com.nttdata.bankaccount.repository.IBankAccountRepository;
-import com.nttdata.bankaccount.service.IAccountTypeService;
 import com.nttdata.bankaccount.service.IBankAccountService;
-import com.nttdata.bankaccount.util.AppUtil;
 import com.nttdata.bankaccount.util.Constant;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -43,6 +41,8 @@ public class BankAccountServiceImpl implements IBankAccountService {
     private final ProductProxy productProxy;
 
     private final ClientProxy clientProxy;
+
+    private final CreditProxy creditProxy;
 
 
     /**
@@ -98,14 +98,18 @@ public class BankAccountServiceImpl implements IBankAccountService {
         LOGGER.info("[BankAccountServiceImpl][create][request]" + request.toString());
         Mono<ClientResponse> client = clientProxy.getClientById(request.getClientId());
         Mono<ProductResponse> product = productProxy.getProductById(request.getProductId());
-        return Mono.zip(client, product)
+        Mono<CreditResponse> credit = creditProxy.getCreditByClientId(request.getClientId());
+        return Mono.zip(client, product, credit)
                 .doOnNext(res -> LOGGER.info("[BankAccountServiceImpl][getProxy]" + res.toString()))
                 .flatMap(res -> bankAccountRepository.findByClientId(res.getT1().getId())
                         //.filter(cli -> cli.getProductId().equals(res.getT2().getId()))
                         //.singleOrEmpty()
                         .doOnNext(ba -> LOGGER.info("[BankAccountServiceImpl][bankAccountRepository]" + ba.toString()))
                         .flatMap(ba -> {
-                            LOGGER.info("[BankAccountServiceImpl][create][findByCCi]" + res.toString());
+                            LOGGER.info("[BankAccountServiceImpl][create][findByCCi]" + res);
+                            if(res.getT3().getCreditStatus().equals(Constant.CREDIT_STATUS_EXPIRED)) {
+                                return Mono.error(CustomException.badRequest("You have expired products that you must pay for"));
+                            }
                             String planName = res.getT1().getPlan().getName();
                             String productName = res.getT2().getName();
                             // validate plan type if is personal or empresarial

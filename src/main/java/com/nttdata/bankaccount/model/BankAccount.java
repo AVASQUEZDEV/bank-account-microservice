@@ -30,7 +30,7 @@ public class BankAccount {
     @Field(name = "client_id", write = Field.Write.NON_NULL)
     private String clientId;
 
-    @Field(name = "productId", write = Field.Write.NON_NULL)
+    @Field(name = "product_id", write = Field.Write.NON_NULL)
     private String productId;
 
     @Field(name = "card_number", write = Field.Write.NON_NULL)
