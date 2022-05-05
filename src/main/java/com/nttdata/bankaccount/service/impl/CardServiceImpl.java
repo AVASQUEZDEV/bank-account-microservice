@@ -1,11 +1,11 @@
 package com.nttdata.bankaccount.service.impl;
 
-import com.nttdata.bankaccount.dto.mapper.AccountTypeMapper;
-import com.nttdata.bankaccount.dto.request.AccountTypeRequest;
+import com.nttdata.bankaccount.dto.mapper.CardMapper;
+import com.nttdata.bankaccount.dto.request.CardRequest;
 import com.nttdata.bankaccount.exceptions.CustomException;
-import com.nttdata.bankaccount.model.AccountType;
-import com.nttdata.bankaccount.repository.IAccountTypeRepository;
-import com.nttdata.bankaccount.service.IAccountTypeService;
+import com.nttdata.bankaccount.model.Card;
+import com.nttdata.bankaccount.repository.ICardRepository;
+import com.nttdata.bankaccount.service.ICardService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,13 +21,13 @@ import reactor.core.publisher.Mono;
  */
 @RequiredArgsConstructor
 @Service
-public class AccountTypeServiceImpl implements IAccountTypeService {
+public class CardServiceImpl implements ICardService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AccountTypeServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CardServiceImpl.class);
 
-    private final IAccountTypeRepository IAccountTypeRepository;
+    private final ICardRepository ICardRepository;
 
-    private final AccountTypeMapper accountTypeMapper;
+    private final CardMapper cardMapper;
 
     /**
      * This method returns a list of bank accounts charges
@@ -35,8 +35,8 @@ public class AccountTypeServiceImpl implements IAccountTypeService {
      * @return ank account charges list
      */
     @Override
-    public Flux<AccountType> findAll() {
-        return IAccountTypeRepository.findAll().onErrorResume(e -> {
+    public Flux<Card> findAll() {
+        return ICardRepository.findAll().onErrorResume(e -> {
             LOGGER.error("[" + getClass().getName() + "][findAll]" + e);
             return Mono.error(CustomException.internalServerError("Internal Server Error:" + e));
         });
@@ -49,8 +49,8 @@ public class AccountTypeServiceImpl implements IAccountTypeService {
      * @return bank account charge
      */
     @Override
-    public Mono<AccountType> findById(String id) {
-        return IAccountTypeRepository.findById(id)
+    public Mono<Card> findById(String id) {
+        return ICardRepository.findById(id)
                 .onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][findById]" + e.getMessage());
                     return Mono.error(CustomException.badRequest("The request is invalid:" + e));
@@ -64,9 +64,9 @@ public class AccountTypeServiceImpl implements IAccountTypeService {
      * @return bank account charges created
      */
     @Override
-    public Mono<AccountType> create(AccountTypeRequest request) {
-        return accountTypeMapper.toPostModel(request)
-                .flatMap(IAccountTypeRepository::save)
+    public Mono<Card> create(CardRequest request) {
+        return cardMapper.toPostModel(request)
+                .flatMap(ICardRepository::save)
                 .onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][create]" + e);
                     return Mono.error(CustomException.badRequest("The request is invalid:" + e));
@@ -81,10 +81,10 @@ public class AccountTypeServiceImpl implements IAccountTypeService {
      * @return bank account charge updated
      */
     @Override
-    public Mono<AccountType> update(String id, AccountTypeRequest request) {
+    public Mono<Card> update(String id, CardRequest request) {
         return findById(id)
-                .flatMap(bac -> accountTypeMapper.toPutModel(bac, request)
-                        .flatMap(IAccountTypeRepository::save))
+                .flatMap(bac -> cardMapper.toPutModel(bac, request)
+                        .flatMap(ICardRepository::save))
                 .onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][update]" + e);
                     return Mono.error(CustomException.badRequest("The request is invalid:" + e));
@@ -99,7 +99,7 @@ public class AccountTypeServiceImpl implements IAccountTypeService {
      */
     @Override
     public Mono<Void> deleteById(String id) {
-        return IAccountTypeRepository.deleteById(id).onErrorResume(e -> {
+        return ICardRepository.deleteById(id).onErrorResume(e -> {
             LOGGER.error("[" + getClass().getName() + "][delete]" + e);
             return Mono.error(CustomException.badRequest("The request is invalid:" + e));
         });

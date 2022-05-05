@@ -1,25 +1,18 @@
 package com.nttdata.bankaccount.dto.request;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
 /**
- * This class defines the request of bank account
+ * This class defines the request of bank account charges
  *
  * @author Alcibar Vasquez
  * @version 1.0
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class BankAccountRequest {
-
-    private String clientId;
-
-    private String productId;
+public class CardRequest {
 
     private String cardNumber;
 
@@ -30,5 +23,7 @@ public class BankAccountRequest {
     private String cci;
 
     private Float balance;
+
+    private String bankName;
 
 }

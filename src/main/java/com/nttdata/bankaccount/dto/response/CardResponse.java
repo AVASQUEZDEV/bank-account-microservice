@@ -14,22 +14,27 @@ import java.util.Date;
  */
 @AllArgsConstructor
 @Data
-public class AccountTypeResponse {
+public class CardResponse {
 
-    @JsonProperty(value = "id")
     private String id;
 
-    @JsonProperty(value = "name")
-    private String name;
+    @JsonProperty(value = "cardNumber")
+    private String cardNumber;
 
-    @JsonProperty(value = "commission")
-    private Float commission;
+    @JsonProperty(value = "securityCode")
+    private Long securityCode;
 
-    @JsonProperty(value = "movementsQuantity")
-    private String movementsQuantity;
+    @JsonProperty(value = "expirationDate")
+    private Date expirationDate;
 
-    @JsonProperty(value = "frequency")
-    private String frequency;
+    @JsonProperty(value = "cci")
+    private String cci;
+
+    @JsonProperty(value = "balance")
+    private Float balance;
+
+    @JsonProperty(value = "bankName")
+    private String bankName;
 
     @JsonProperty(value = "createdAt")
     private Date createdAt;

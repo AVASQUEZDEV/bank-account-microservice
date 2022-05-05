@@ -1,6 +1,6 @@
 package com.nttdata.bankaccount.repository;
 
-import com.nttdata.bankaccount.model.AccountType;
+import com.nttdata.bankaccount.model.Card;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
@@ -12,8 +12,8 @@ import reactor.core.publisher.Mono;
  * @version 1.0
  */
 @Repository
-public interface IAccountTypeRepository extends ReactiveMongoRepository<AccountType, String> {
+public interface ICardRepository extends ReactiveMongoRepository<Card, String> {
 
-    Mono<AccountType> findByName(String name);
+    Mono<Card> findByName(String name);
 
 }

@@ -1,9 +1,9 @@
 package com.nttdata.bankaccount.controller;
 
-import com.nttdata.bankaccount.dto.mapper.AccountTypeMapper;
-import com.nttdata.bankaccount.dto.request.AccountTypeRequest;
-import com.nttdata.bankaccount.dto.response.AccountTypeResponse;
-import com.nttdata.bankaccount.service.IAccountTypeService;
+import com.nttdata.bankaccount.dto.mapper.CardMapper;
+import com.nttdata.bankaccount.dto.request.CardRequest;
+import com.nttdata.bankaccount.dto.response.CardResponse;
+import com.nttdata.bankaccount.service.ICardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,19 +20,19 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/bank-accounts/types")
-public class AccountTypeRestController {
+public class CardRestController {
 
-    private final IAccountTypeService accountTypeService;
+    private final ICardService cardService;
 
-    private final AccountTypeMapper accountTypeMapper;
+    private final CardMapper cardMapper;
 
     /**
      * @return list of bank account charges
      */
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public Flux<AccountTypeResponse> getAll() {
-        return accountTypeMapper.toFluxResponse(accountTypeService.findAll());
+    public Flux<CardResponse> getAll() {
+        return cardMapper.toFluxResponse(cardService.findAll());
     }
 
     /**
@@ -40,8 +40,8 @@ public class AccountTypeRestController {
      */
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<AccountTypeResponse> getById(@PathVariable(name = "id") String id) {
-        return accountTypeMapper.toMonoResponse(accountTypeService.findById(id));
+    public Mono<CardResponse> getById(@PathVariable(name = "id") String id) {
+        return cardMapper.toMonoResponse(cardService.findById(id));
     }
 
     /**
@@ -52,8 +52,8 @@ public class AccountTypeRestController {
     @PostMapping(
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<AccountTypeResponse> create(@RequestBody AccountTypeRequest request) {
-        return accountTypeMapper.toMonoResponse(accountTypeService.create(request));
+    public Mono<CardResponse> create(@RequestBody CardRequest request) {
+        return cardMapper.toMonoResponse(cardService.create(request));
     }
 
     /**
@@ -66,9 +66,9 @@ public class AccountTypeRestController {
             value = "/{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<AccountTypeResponse> update(@PathVariable(name = "id") String id,
-                                            @RequestBody AccountTypeRequest request) {
-        return accountTypeMapper.toMonoResponse(accountTypeService.update(id, request));
+    public Mono<CardResponse> update(@PathVariable(name = "id") String id,
+                                     @RequestBody CardRequest request) {
+        return cardMapper.toMonoResponse(cardService.update(id, request));
     }
 
     /**
@@ -78,7 +78,7 @@ public class AccountTypeRestController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
     public Mono<Void> deleteById(@PathVariable(name = "id") String id) {
-        return accountTypeService.deleteById(id);
+        return cardService.deleteById(id);
     }
 
 }

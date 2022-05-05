@@ -21,9 +21,9 @@ import reactor.core.publisher.Mono;
  */
 @RequiredArgsConstructor
 @Service
-public class CardTypeTypeServiceImpl implements ICardTypeService {
+public class CardTypeServiceImpl implements ICardTypeService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CardTypeTypeServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CardTypeServiceImpl.class);
 
     private final ICardTypeRepository cardTypeRepository;
 
