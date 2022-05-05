@@ -16,22 +16,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 class BankaccountApplicationTests {
 
-	@Autowired
-	private WebTestClient webTestClient;
-
-	//@MockBean
-	//private IBankAccountService bankAccountService;
-
-	@Test
-	void createBankAccount() {
-		//Mockito.when(bankAccountService.findAll()).thenReturn(Flux.just(request));
-		webTestClient.get()
-				.uri("/api/v1/bank-accounts")
-				.accept(MediaType.APPLICATION_JSON)
-				.exchange()
-				.expectStatus().isOk()
-				.expectBodyList(BankAccountResponse.class);
-	}
+	
 
 
 
