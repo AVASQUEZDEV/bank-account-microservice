@@ -3,6 +3,7 @@ package com.nttdata.bankaccount.dto.response.proxy;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
@@ -13,6 +14,7 @@ import java.util.Date;
  * @version 1.0
  */
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class CreditResponse {
 

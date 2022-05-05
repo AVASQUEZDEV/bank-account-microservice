@@ -1,11 +1,9 @@
 package com.nttdata.bankaccount.dto.mapper;
 
 import com.nttdata.bankaccount.dto.request.BankAccountRequest;
-import com.nttdata.bankaccount.dto.response.AccountTypeResponse;
 import com.nttdata.bankaccount.dto.response.BankAccountResponse;
 import com.nttdata.bankaccount.model.BankAccount;
 import com.nttdata.bankaccount.util.AppUtil;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -18,11 +16,8 @@ import java.util.Date;
  * @author Alcibar Vasquez
  * @version 1.0
  */
-@RequiredArgsConstructor
 @Service
 public class BankAccountMapper {
-
-    private final AccountTypeMapper accountTypeMapper;
 
     /**
      * This method convert request to model

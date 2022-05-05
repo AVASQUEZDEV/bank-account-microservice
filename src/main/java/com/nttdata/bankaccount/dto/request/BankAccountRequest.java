@@ -1,7 +1,9 @@
 package com.nttdata.bankaccount.dto.request;
 
 import com.nttdata.bankaccount.model.AccountType;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
@@ -12,6 +14,8 @@ import java.util.Date;
  * @version 1.0
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class BankAccountRequest {
 
     private String clientId;

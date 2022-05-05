@@ -98,48 +98,50 @@ public class BankAccountServiceImpl implements IBankAccountService {
         LOGGER.info("[BankAccountServiceImpl][create][request]" + request.toString());
         Mono<ClientResponse> client = clientProxy.getClientById(request.getClientId());
         Mono<ProductResponse> product = productProxy.getProductById(request.getProductId());
-        Mono<CreditResponse> credit = creditProxy.getCreditByClientId(request.getClientId());
-        return Mono.zip(client, product, credit)
-                .doOnNext(res -> LOGGER.info("[BankAccountServiceImpl][getProxy]" + res.toString()))
-                .flatMap(res -> bankAccountRepository.findByClientId(res.getT1().getId())
-                        //.filter(cli -> cli.getProductId().equals(res.getT2().getId()))
-                        //.singleOrEmpty()
-                        .doOnNext(ba -> LOGGER.info("[BankAccountServiceImpl][bankAccountRepository]" + ba.toString()))
-                        .flatMap(ba -> {
-                            LOGGER.info("[BankAccountServiceImpl][create][findByCCi]" + res);
-                            if(res.getT3().getCreditStatus().equals(Constant.CREDIT_STATUS_EXPIRED)) {
-                                return Mono.error(CustomException.badRequest("You have expired products that you must pay for"));
-                            }
-                            String planName = res.getT1().getPlan().getName();
-                            String productName = res.getT2().getName();
-                            // validate plan type if is personal or empresarial
-                            if (planName.equals(PlanType.Personal.toString())) {
-                                LOGGER.info("[BankAccountServiceImpl][create]" + planName);
-                                if(ba.getProductId().equals(res.getT2().getId())) {
-                                    return Mono.error(CustomException
-                                            .badRequest("The personal plan already has a account: " + productName));
-                                } else {
-                                    return bankAccountMapper.toPostModel(request)
-                                            .flatMap(bankAccountRepository::save);
-                                }
-                            } else {
-                                LOGGER.info("[BankAccountServiceImpl][create]" + planName);
-                                if (productName.equals(Constant.CURRENT_ACCOUNT)) {
-                                    return bankAccountMapper.toPostModel(request)
-                                            .flatMap(bankAccountRepository::save);
-                                } else {
-                                    return Mono.error(CustomException
-                                            .badRequest("The business plan can only have current accounts"));
-                                }
-                            }
-                        }).singleOrEmpty()
-                        .switchIfEmpty(bankAccountMapper.toPostModel(request)
-                                .flatMap(bankAccountRepository::save))
-                ).onErrorResume(e -> {
-                    LOGGER.error("[" + getClass().getName() + "][create]" + e);
-                    e.printStackTrace();
-                    return Mono.error(CustomException.badRequest("The request is invalid:" + e.getMessage()));
-                }).switchIfEmpty(Mono.error(CustomException.notFound("Client or Product not found")));
+        return checkIfExistDebts(request.getClientId())
+                .doOnNext(debts -> LOGGER.info("[BankAccountServiceImpl][Proxy][getCreditByClientId]" + debts))
+                .flatMap(debts -> Mono.zip(client, product)
+                        .doOnNext(res -> LOGGER.info("[BankAccountServiceImpl][Proxy]" + res.toString()))
+                        .flatMap(res -> bankAccountRepository.findByClientId(res.getT1().getId())
+                                //.filter(cli -> cli.getProductId().equals(res.getT2().getId()))
+                                //.singleOrEmpty()
+                                .doOnNext(ba -> LOGGER.info("[BankAccountServiceImpl][bankAccountRepository]" + ba.toString()))
+                                .flatMap(ba -> {
+                                    LOGGER.info("[BankAccountServiceImpl][create][findByCCi]" + res);
+                                    if(debts) {
+                                        return Mono.error(CustomException
+                                                .badRequest("You have pending payments for credit products"));
+                                    }
+                                    String planName = res.getT1().getPlan().getName();
+                                    String productName = res.getT2().getName();
+                                    // validate plan type if is personal or empresarial
+                                    if (planName.equals(PlanType.Personal.toString())) {
+                                        LOGGER.info("[BankAccountServiceImpl][create]" + planName);
+                                        if (ba.getProductId().equals(res.getT2().getId())) {
+                                            return Mono.error(CustomException
+                                                    .badRequest("The personal plan already has a account: " + productName));
+                                        } else {
+                                            return bankAccountMapper.toPostModel(request)
+                                                    .flatMap(bankAccountRepository::save);
+                                        }
+                                    } else {
+                                        LOGGER.info("[BankAccountServiceImpl][create]" + planName);
+                                        if (productName.equals(Constant.CURRENT_ACCOUNT) ||
+                                                productName.equals(Constant.CREDIT_ACCOUNT)) {
+                                            return bankAccountMapper.toPostModel(request)
+                                                    .flatMap(bankAccountRepository::save);
+                                        } else {
+                                            return Mono.error(CustomException
+                                                    .badRequest("The business plan can only have current accounts"));
+                                        }
+                                    }
+                                }).singleOrEmpty()
+                                .switchIfEmpty(bankAccountMapper.toPostModel(request)
+                                        .flatMap(bankAccountRepository::save))
+                        ).onErrorResume(e -> {
+                            LOGGER.error("[" + getClass().getName() + "][create]" + e);
+                            return Mono.error(CustomException.badRequest("The request is invalid:" + e.getMessage()));
+                        }).switchIfEmpty(Mono.error(CustomException.notFound("Client or Product not found"))));
     }
 
     /**
@@ -182,5 +184,19 @@ public class BankAccountServiceImpl implements IBankAccountService {
                     LOGGER.error("[" + getClass().getName() + "][deleteById]" + e);
                     return Mono.error(CustomException.badRequest("The request is invalid" + e));
                 });
+    }
+
+    /**
+     * This method check if exist debs of credit card
+     *
+     * @param clientId request
+     * @return boolean or empty
+     */
+    private Mono<Boolean> checkIfExistDebts(String clientId) {
+        return creditProxy.getCreditByClientId(clientId)
+                .filter(c -> c.getCreditStatus().equals(Constant.CREDIT_STATUS_EXPIRED))
+                .singleOrEmpty()
+                .flatMap(s -> Mono.just(true))
+                .switchIfEmpty(Mono.just(false));
     }
 }

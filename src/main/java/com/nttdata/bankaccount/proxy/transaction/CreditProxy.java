@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -38,13 +39,13 @@ public class CreditProxy {
 
     private final WebClient webClient;
 
-    public Mono<CreditResponse> getCreditByClientId(String id) {
+    public Flux<CreditResponse> getCreditByClientId(String id) {
         LOGGER.info("[REQUEST][URL][getCreditByClientId]:" + getCompleteURL() + "/" + id);
         return webClient.get()
                 .uri(getCompleteURL() + "/" + id)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .bodyToMono(CreditResponse.class)
+                .bodyToFlux(CreditResponse.class)
                 .onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][getCreditByClientId]" + e);
                     return Mono.error(CustomException.badRequest("The request to proxy is invalid"));
