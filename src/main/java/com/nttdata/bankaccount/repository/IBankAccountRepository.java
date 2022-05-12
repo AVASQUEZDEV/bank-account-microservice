@@ -15,8 +15,6 @@ import reactor.core.publisher.Mono;
 @Repository
 public interface IBankAccountRepository extends ReactiveMongoRepository<BankAccount, String> {
 
-    Mono<BankAccount> findByCci(String cci);
-
     Flux<BankAccount> findByClientId(String clientId);
 
 

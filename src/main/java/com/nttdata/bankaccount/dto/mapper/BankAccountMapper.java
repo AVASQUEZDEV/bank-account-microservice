@@ -30,10 +30,6 @@ public class BankAccountMapper {
                 new BankAccount(
                         request.getClientId(),
                         request.getProductId(),
-                        request.getCardNumber(),
-                        request.getSecurityCode(),
-                        request.getExpirationDate(),
-                        request.getCci(),
                         request.getBalance(),
                         AppUtil.dateFormat(new Date()),
                         AppUtil.dateFormat(new Date())
@@ -49,6 +45,9 @@ public class BankAccountMapper {
      * @return bankAccount model
      */
     public Mono<BankAccount> toPutModel(BankAccount bankAccount, BankAccountRequest request) {
+        if(!request.getCardId().isEmpty()) {
+            bankAccount.setCardId(request.getCardId());
+        }
         bankAccount.setBalance(request.getBalance());
         bankAccount.setUpdatedAt(AppUtil.dateFormat(new Date()));
         return Mono.just(bankAccount);
@@ -67,10 +66,7 @@ public class BankAccountMapper {
                                 ba.getId(),
                                 ba.getClientId(),
                                 ba.getProductId(),
-                                ba.getCardNumber(),
-                                ba.getSecurityCode(),
-                                ba.getExpirationDate(),
-                                ba.getCci(),
+                                ba.getCardId(),
                                 ba.getBalance(),
                                 ba.getCreatedAt(),
                                 ba.getCreatedAt()))

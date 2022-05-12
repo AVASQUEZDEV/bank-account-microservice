@@ -1,5 +1,6 @@
 package com.nttdata.bankaccount.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,17 +26,9 @@ public class BankAccountResponse {
     @JsonProperty(value = "productId")
     private String productId;
 
-    @JsonProperty(value = "cardNumber")
-    private String cardNumber;
-
-    @JsonProperty(value = "securityCode")
-    private Long securityCode;
-
-    @JsonProperty(value = "expirationDate")
-    private Date expirationDate;
-
-    @JsonProperty(value = "cci")
-    private String cci;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty(value = "cardId")
+    private String cardId;
 
     @JsonProperty(value = "balance")
     private Float balance;

@@ -24,29 +24,23 @@ public class ProductProxy {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ClientProxy.class);
 
-    @Value("${microservices.product.base-url}")
-    private String baseUrl;
+    @Value("${api-gateway.routes.ms-product.product}")
+    private String productURL;
 
-    @Value("${microservices.product.end-point.product}")
-    private String path;
-
-    public String getCompleteURL() {
-        return baseUrl + path;
-    }
     //private WebClient.Builder webClient = WebClient.builder();
 
     private final WebClient webClient;
 
     public Mono<ProductResponse> getProductById(String id) {
-        LOGGER.info("[REQUEST][URL][getProductById]:" + getCompleteURL() + "/" + id);
+        LOGGER.info("[REQUEST][URL][getProductById]:" + productURL + "/" + id);
         return webClient.get()
-                .uri(getCompleteURL() + "/" + id)
+                .uri(productURL + "/" + id)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(ProductResponse.class)
                 .onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][getProductById]" + e);
-                    return Mono.error(CustomException.badRequest("The request to proxy is invalid"));
+                    return Mono.error(CustomException.badRequest("The request to proxy of product is invalid"));
                 }).switchIfEmpty(Mono.error(CustomException.notFound("Product not found")));
     }
 

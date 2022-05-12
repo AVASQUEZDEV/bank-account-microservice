@@ -21,13 +21,7 @@ public class BankAccountRequest {
 
     private String productId;
 
-    private String cardNumber;
-
-    private Long securityCode;
-
-    private Date expirationDate;
-
-    private String cci;
+    private String cardId;
 
     private Float balance;
 

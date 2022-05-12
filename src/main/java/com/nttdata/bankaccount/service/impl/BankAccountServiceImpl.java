@@ -75,19 +75,6 @@ public class BankAccountServiceImpl implements IBankAccountService {
     }
 
     /**
-     * @param cci request
-     * @return bank account
-     */
-    @Override
-    public Mono<BankAccount> findByCCI(String cci) {
-        return bankAccountRepository.findByCci(cci)
-                .onErrorResume(e -> {
-                    LOGGER.error("[" + getClass().getName() + "][findById]" + e.getMessage());
-                    return Mono.error(CustomException.badRequest("The request is invalid:" + e));
-                }).switchIfEmpty(Mono.error(CustomException.notFound("Bank account not found")));
-    }
-
-    /**
      * This method creates a bank account
      *
      * @param request request to create new bank account

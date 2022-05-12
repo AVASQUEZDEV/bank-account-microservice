@@ -26,29 +26,21 @@ public class CreditProxy {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ClientProxy.class);
 
-    @Value("${microservices.transaction.base-url}")
-    private String baseUrl;
-
-    @Value("${microservices.transaction.end-point.credit}")
-    private String path;
-
-    public String getCompleteURL() {
-        return baseUrl + path;
-    }
-    //private WebClient.Builder webClient = WebClient.builder();
+    @Value("${api-gateway.routes.ms-transaction.credit}")
+    private String creditURL;
 
     private final WebClient webClient;
 
     public Flux<CreditResponse> getCreditByClientId(String id) {
-        LOGGER.info("[REQUEST][URL][getCreditByClientId]:" + getCompleteURL() + "/" + id);
+        LOGGER.info("[REQUEST][URL][getCreditByClientId]:" + creditURL + "/" + id);
         return webClient.get()
-                .uri(getCompleteURL() + "/" + id)
+                .uri(creditURL + "/" + id)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToFlux(CreditResponse.class)
                 .onErrorResume(e -> {
                     LOGGER.error("[" + getClass().getName() + "][getCreditByClientId]" + e);
-                    return Mono.error(CustomException.badRequest("The request to proxy is invalid"));
+                    return Mono.error(CustomException.badRequest("The request to proxy of credit is invalid"));
                 }).switchIfEmpty(Mono.error(CustomException.notFound("Credit not found")));
     }
 

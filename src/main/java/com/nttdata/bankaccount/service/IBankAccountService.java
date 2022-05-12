@@ -18,8 +18,6 @@ public interface IBankAccountService {
 
     Mono<BankAccount> findById(String id);
 
-    Mono<BankAccount> findByCCI(String cci);
-
     Mono<BankAccount> create(BankAccountRequest request);
 
     Mono<BankAccount> update(String id, BankAccountRequest request, TransactionType transactionType);

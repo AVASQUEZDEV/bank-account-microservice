@@ -49,16 +49,6 @@ public class BankAccountRestController {
         return bankAccountMapper.toMonoResponse(bankAccountService.findById(id));
     }
 
-    /***
-     * @param id request
-     * @return bank account
-     */
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping(value = "/cci/{cci}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<BankAccountResponse> getByCCI(@PathVariable(name = "cci") String cci) {
-        return bankAccountMapper.toMonoResponse(bankAccountService.findByCCI(cci));
-    }
-
     /**
      * @param request request to create bank account
      * @return bank account created
