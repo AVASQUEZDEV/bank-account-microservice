@@ -49,5 +49,5 @@ jobs:
         with:
           app-name: 'nttdata-microservice-bank-account'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_5FE84030AD144027AD0383F6B6CDA267 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_A319066984F94D95BAE969DFA1D684CD }}
           package: '*.jar'
